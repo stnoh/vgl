@@ -11,7 +11,7 @@ public:
 		static int count = 0;
 		printf("draw call: %d\r", count++);
 
-		glClearColor(0.2, 0.3, 0.5, 1.0);
+		glClearColor(0.2f, 0.3f, 0.5f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 

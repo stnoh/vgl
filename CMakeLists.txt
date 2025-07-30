@@ -3,7 +3,7 @@
 # Author: Seung-Tak Noh (seungtak.noh@gmail.com)
 ##############################################################################
 cmake_minimum_required (VERSION 3.1)
-project ("vgl")
+project ("vgl" LANGUAGES CXX)
 
 
 ########################################
@@ -28,7 +28,7 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/external/AntTweakBar)
 
 
 ###############################################################################
-# Main library (cvgl)
+# Main library (vgl)
 ###############################################################################
 set(VGL_HEADER_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include/vgl)
 set(VGL_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
@@ -44,7 +44,7 @@ file(GLOB
 
 
 ########################################
-## cvgl build
+## vgl build
 ########################################
 add_library(vgl STATIC ${headers} ${sources})
 

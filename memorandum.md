@@ -13,15 +13,15 @@ Type: Windowing library. GLFWの代わりとして考慮可能．
 
 ### [GLAD](https://github.com/Dav1dde/glad)
 
-Type: OpenGL loading library. GLEWの代わりとして考慮可能．  
+Type: OpenGL loading library. GLEWの代わりとして考慮．  
 
 - [✔] Modern GL: on-time, tailored code generation.  
-- [△] 私自身が使った経験がない  
+- [✘] コード生成する仕組みがあって，かえって面倒に思える  
 
 
 ### [nanogui](https://github.com/wjakob/nanogui)
 
-Type: AntTweakBarの代わり？として使うか？
+Type: AntTweakBarの代わりとして使えるかも知れない．  
 
 - [✔] Modern GUI  
 - [△] 情報がちょっと足りない  
