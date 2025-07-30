@@ -21,6 +21,7 @@ C++によるOpenGLの基本的な実装を含んでいる．
 - [glm](https://github.com/g-truc/glm)-1.0.1: GL Mathematics．OpenGLで用いられる構造体(``float4``など)の使えるライブラリ  
 - [glew-cmake](https://github.com/Perlmint/glew-cmake)-2.2.0: GLEW の cmake 対応版  
 - [glfw](https://github.com/glfw/glfw)-3.3.10: GLコンテキストの使用可能な基本ウィンドウライブラリ．  
+- [anttweakbar](https://github.com/tschw/AntTweakBar): OpenGL screen上に備えられる簡単なGUIライブラリ．  
 
 
 ## コンパイル
