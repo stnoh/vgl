@@ -9,6 +9,7 @@
 #include <glm/ext.hpp>
 
 #include <vgl/GLCamera.h>
+#include <vgl/FBO.h>
 
 class Example103 : public AppGLBase
 {
@@ -43,6 +44,9 @@ private:
 		rendercam->position = glm::vec3(0.0f, 0.0f, 2.0f);
 		rendercam->rotation = glm::quat(glm::radians(glm::vec3(0.0f, 0.0f, 0.0f)));
 	}
+
+	// offscreen renderer
+	vgl::FBO* offscreenFBO = nullptr;
 
 	// container for 3D mesh
 	std::vector<glm::vec3> V, N; // vertex/normal

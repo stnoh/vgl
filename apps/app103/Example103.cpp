@@ -116,6 +116,9 @@ bool Example103::Init()
 	resetCameraView();
 	resetModelMatrix();
 
+	// instantiate frame buffer object
+	offscreenFBO = new vgl::FBO();
+
 	////////////////////////////////////////////////////////////
 	// UI: AntTweakBar
 	////////////////////////////////////////////////////////////
@@ -187,7 +190,14 @@ bool Example103::Init()
 }
 void Example103::End()
 {
-	// [TODO]
+	if (rendercam) {
+		delete rendercam;
+		rendercam = nullptr;
+	}
+	if (offscreenFBO) {
+		delete offscreenFBO;
+		offscreenFBO = nullptr;
+	}
 }
 
 
