@@ -1,4 +1,5 @@
 #include "Example103.h"
+#include <tinyfiledialogs.h>
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -137,6 +138,12 @@ bool Example103::Init()
 
 	// model coordinate
 #if 1
+	TwAddButton(bar, "Model-LoadMesh",
+		[](void* client) {
+		Example103* _this = (Example103*)client;
+		_this->LoadMesh();
+	}, this, "group='Model' label='LoadMesh' key=F3");
+
 	TwAddButton(bar, "Model-init", [](void* client) {
 		Example103* _this = (Example103*)client; _this->resetModelMatrix();
 	}, this, "group='Model' label='init' ");
@@ -197,6 +204,25 @@ void Example103::End()
 	if (offscreenFBO) {
 		delete offscreenFBO;
 		offscreenFBO = nullptr;
+	}
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+// user-defined function
+///////////////////////////////////////////////////////////////////////////////
+void Example103::LoadMesh()
+{
+	char const* filterPatterns[1] = {"*.ply"};
+
+	char* filepath = tinyfd_openFileDialog(
+		"Read .ply mesh",
+		"./", 1, filterPatterns, NULL, 0);
+
+	if (filepath) {
+		printf("filepath: %s\n", filepath);
+
+		// [TODO] read .ply file
 	}
 }
 

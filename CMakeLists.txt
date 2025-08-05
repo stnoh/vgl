@@ -53,11 +53,25 @@ file(GLOB
   "${VGL_SOURCE_DIR}/*.cpp"
 )
 
-
-########################################
-## vgl build
-########################################
 add_library(vgl STATIC ${headers} ${sources})
+
+
+###############################################################################
+# external library (tinyfiledialog)
+###############################################################################
+project ("tinyfd" LANGUAGES C)
+
+file(GLOB
+  header_tinyfd
+  "${CMAKE_CURRENT_SOURCE_DIR}/external/tinyfd/tinyfiledialogs.h"
+)
+file(GLOB
+  source_tinyfd
+  "${CMAKE_CURRENT_SOURCE_DIR}/external/tinyfd/tinyfiledialogs.c"
+)
+
+add_library(tinyfd STATIC ${header_tinyfd} ${source_tinyfd})
+
 
 ## add headers
 target_include_directories(vgl PUBLIC
@@ -66,6 +80,7 @@ target_include_directories(vgl PUBLIC
   ${CMAKE_SOURCE_DIR}/external/glfw/include
   ${CMAKE_SOURCE_DIR}/external/glew-cmake/include
   ${CMAKE_SOURCE_DIR}/external/AntTweakBar/TweakBar/include
+  ${CMAKE_SOURCE_DIR}/external/tinyfd
 )
 
 ## link *.lib
@@ -74,6 +89,7 @@ target_link_libraries(vgl
   libglew_static
   glfw
   AntTweakBar
+  tinyfd
 )
 
 

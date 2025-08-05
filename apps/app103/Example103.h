@@ -23,6 +23,9 @@ public:
 	bool Init();
 	void End();
 
+	// user-defined function
+	void LoadMesh();
+
 private:
 	void drawView3D(glm::mat4 proj, glm::mat4 view);
 
