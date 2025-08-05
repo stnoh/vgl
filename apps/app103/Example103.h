@@ -66,7 +66,7 @@ private:
 	{
 		ModelUniScale = 1.0f;
 		ModelPosition = glm::vec3(0.0f, 0.0f, 0.0f);;
-		ModelRotation = glm::quat(glm::radians(glm::vec3(-90.0f, 90.0f, 0.0f)));
+		ModelRotation = glm::quat(glm::radians(glm::vec3(0.0f, 0.0f, 0.0f)));
 	}
 };
 

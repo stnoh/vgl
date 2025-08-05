@@ -1,4 +1,5 @@
 #include "Example103.h"
+#include <vgl/plyFileIO.h>
 #include <tinyfiledialogs.h>
 
 
@@ -222,7 +223,10 @@ void Example103::LoadMesh()
 	if (filepath) {
 		printf("filepath: %s\n", filepath);
 
-		// [TODO] read .ply file
+		// load ply mesh
+		vgl::ReadTriMeshPly(filepath, V, N, F);
+		printf("[DONE]\n");
+		printf("(V, N, F) = (%d, %d, %d)\n", V.size(), N.size(), F.size() / 3);
 	}
 }
 
