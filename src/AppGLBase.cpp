@@ -2,7 +2,7 @@
 Application base class with GL context using GLFW with AntTweakBar
 Author: Seung-Tak Noh (seungtak.noh [at] gmail.com)
 ******************************************************************************/
-#include "vgl/AppGLBase.h"
+#include <vgl/AppGLBase.h>
 
 ///////////////////////////////////////////////////////////////////////////////
 // [C++ limitation] custom callback
@@ -122,9 +122,7 @@ AppGLBase::AppGLBase(const int width, const int height)
 	glfwSetScrollCallback(window, [](GLFWwindow* window, double xoffset, double yoffset)
 	{
 		AppGLBase* appGL = (AppGLBase*)glfwGetWindowUserPointer(window);
-		static int scroll = 0;
-		scroll += (int)yoffset;
-		TwEventScrollGLFW3(window, xoffset, yoffset + scroll);
+		TwEventScrollGLFW3(window, xoffset, yoffset);
 		appGL->is_dirty = true;
 	});
 	glfwSetKeyCallback(window, [](GLFWwindow* window, int key, int scancode, int action, int mods)
