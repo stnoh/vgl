@@ -7,6 +7,7 @@ Author: Seung-Tak Noh (seungtak.noh [at] gmail.com)
 
 #include <GL/glew.h>
 
+#include <functional>
 #include <vector>
 #include <set>
 #include <glm/glm.hpp>
@@ -23,6 +24,14 @@ public:
 	void Enable();
 	void Disable();
 
+	// lambda guard for enable/disable
+	void DrawFBO(std::function<void(void)> func)
+	{
+		Enable();
+		func();
+		Disable();
+	}
+
 	bool Resize(const int width, const int height);
 
 	void CopyColorToBuffer();
@@ -33,7 +42,7 @@ public:
 
 	std::set<glm::uint> GetVisibleVertexIndices(
 		glm::mat4 ProjViewModel, const std::vector<glm::vec3>& model_verts,
-		const float threshold = 1e-3);
+		const float threshold = 5e-3);
 
 private:
 

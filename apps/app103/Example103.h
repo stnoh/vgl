@@ -25,6 +25,7 @@ public:
 
 	// user-defined function
 	void LoadMesh();
+	void GetVisiblePointCloud();
 	void GetVisibleFaces();
 
 private:
@@ -57,6 +58,7 @@ private:
 	std::vector<glm::u8vec3> C;  // vertex color
 	std::vector<glm::uint> F;
 
+	std::vector<glm::vec3> P_visible; // visible points
 	std::vector<glm::uint> F_visible; // visible faces
 
 	// model matrix for 3D mesh

@@ -72,7 +72,6 @@ void Example103::drawView3D(glm::mat4 proj, glm::mat4 view)
 		glColor3f(1.0f, 1.0f, 0.0f);
 
 		glEnable(GL_POLYGON_OFFSET_FILL); // for superimpose
-
 		glPolygonOffset(-0.5f, 0.5f);
 		vgl::drawTriMesh(V, F_visible);
 		glDisable(GL_POLYGON_OFFSET_FILL);
@@ -85,20 +84,15 @@ void Example103::drawView3D(glm::mat4 proj, glm::mat4 view)
 	////////////////////////////////////////////////////////////
 	// camera space
 	////////////////////////////////////////////////////////////
-	glm::mat4 cam_proj = rendercam->GetProjMatrix();
-	glm::mat4 cam_pose = rendercam->GetPoseMatrix();
-
 	glColor3f(1.0f, 1.0f, 0.0f);
-	{
-		glPushMatrix();
-		glMultMatrixf(glm::value_ptr(cam_pose));
+	glLineWidth(2.0f);
+	rendercam->SetCameraCoord([&] {
 
-		// camera frustum
-		glLineWidth(2.0f);
-		vgl::drawCameraFrustum(cam_proj);
+		// draw visible point cloud with cyan color
+		glColor3f(0.0f, 1.0f, 1.0f);
+		vgl::drawPointCloud(P_visible);
 
-		glPopMatrix();
-	}
+	}, true);
 }
 
 
@@ -174,6 +168,11 @@ bool Example103::Init()
 		Example103* _this = (Example103*)client;
 		_this->GetVisibleFaces();
 	}, this, "key=SPACE");
+	TwAddButton(bar, "GetVisiblePointCloud",
+		[](void* client) {
+		Example103* _this = (Example103*)client;
+		_this->GetVisiblePointCloud();
+	}, this, "key=P");
 #endif
 
 	// projection matrix related properties
@@ -239,6 +238,38 @@ void Example103::LoadMesh()
 		C = vgl::GetNormalColors(N); // get normalmap color from vertex normal
 	}
 }
+void Example103::GetVisiblePointCloud()
+{
+	P_visible.clear();
+
+	////////////////////////////////////////
+	// offscreen rendering to generate data
+	////////////////////////////////////////
+	int w = width / 2;
+	int h = w;
+
+	offscreenFBO->Resize(w, h);
+	offscreenFBO->DrawFBO( [&] {
+		// draw 3D scene
+		glm::mat4 proj = rendercam->GetProjMatrix();
+		glm::mat4 view = rendercam->GetViewMatrix();
+		glm::mat4 model = glm::translate(glm::mat4(1.0f), ModelPosition) * glm::mat4(ModelRotation);
+		model = glm::scale(model, glm::vec3(ModelUniScale));
+
+		glClearColor(BgColor[1].r, BgColor[1].g, BgColor[1].b, BgColor[1].a);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glEnable(GL_DEPTH_TEST);
+		drawView3D(proj, view);
+		glDisable(GL_DEPTH_TEST);
+
+		offscreenFBO->CopyDepthToBuffer();
+
+		// get visible vertex indices from mesh
+		P_visible = offscreenFBO->ConvertDepthImage2PointCloud(glm::inverse(proj));
+	});
+
+	printf("# visible points V = %d\r", P_visible.size() );
+}
 void Example103::GetVisibleFaces()
 {
 	// clear submesh information in advance
@@ -250,27 +281,27 @@ void Example103::GetVisibleFaces()
 	int w = width / 2;
 	int h = w;
 
+	std::set<glm::uint> V_indices;
+
 	offscreenFBO->Resize(w, h);
-	offscreenFBO->Enable();
+	offscreenFBO->DrawFBO([&] {
+		// draw 3D scene
+		glm::mat4 proj = rendercam->GetProjMatrix();
+		glm::mat4 view = rendercam->GetViewMatrix();
+		glm::mat4 model = glm::translate(glm::mat4(1.0f), ModelPosition) * glm::mat4(ModelRotation);
+		model = glm::scale(model, glm::vec3(ModelUniScale));
 
-	// draw 3D scene
-	glm::mat4 proj = rendercam->GetProjMatrix();
-	glm::mat4 view = rendercam->GetViewMatrix();
-	glm::mat4 model = glm::translate(glm::mat4(1.0f), ModelPosition) * glm::mat4(ModelRotation);
-	model = glm::scale(model, glm::vec3(ModelUniScale));
+		glClearColor(BgColor[1].r, BgColor[1].g, BgColor[1].b, BgColor[1].a);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glEnable(GL_DEPTH_TEST);
+		drawView3D(proj, view);
+		glDisable(GL_DEPTH_TEST);
 
-	glClearColor(BgColor[1].r, BgColor[1].g, BgColor[1].b, BgColor[1].a);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glEnable(GL_DEPTH_TEST);
-	drawView3D(proj, view);
-	glDisable(GL_DEPTH_TEST);
+		offscreenFBO->CopyDepthToBuffer();
 
-	offscreenFBO->CopyDepthToBuffer();
-
-	// get visible vertex indices from mesh
-	std::set<glm::uint> V_indices = offscreenFBO->GetVisibleVertexIndices(proj * view * model, V);
-
-	offscreenFBO->Disable(); // don't forget to release buffer
+		// get visible vertex indices from mesh
+		V_indices = offscreenFBO->GetVisibleVertexIndices(proj * view * model, V);
+	});
 
 	// extract faces which contain visible vertex ***************************** [TEMPORARY]
 	auto GetSubmeshFaceIndicesFromVertexIndices = [](
