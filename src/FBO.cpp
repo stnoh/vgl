@@ -42,20 +42,12 @@ FBO::FBO(const int width, const int height)
 }
 FBO::~FBO()
 {
+	Disable(); // deallocate before removing
+
 	// release render buffers & frame buffer
 	glDeleteRenderbuffers(1, &rboColor);
 	glDeleteRenderbuffers(1, &rboDepth);
 	glDeleteFramebuffers(1, &fbo);
-
-	// release buffers if exist
-	if (nullptr != buffer_color) {
-		delete buffer_color;
-		buffer_color = nullptr;
-	}
-	if (nullptr != buffer_depth) {
-		delete buffer_depth;
-		buffer_depth = nullptr;
-	}
 }
 
 
