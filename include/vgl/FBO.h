@@ -40,6 +40,10 @@ public:
 	std::vector<glm::vec3> ConvertDepthImage2PointCloud(
 		const glm::mat4 proj_inv, const bool full = false);
 
+	std::pair<std::vector<glm::vec3>, std::vector<glm::u8vec3>> 
+		ConvertDepthImage2PointCloudWithColor(
+			const glm::mat4 proj_inv, const bool full = false);
+
 	std::set<glm::uint> GetVisibleVertexIndices(
 		glm::mat4 ProjViewModel, const std::vector<glm::vec3>& model_verts,
 		const float threshold = 5e-3);

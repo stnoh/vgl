@@ -163,23 +163,23 @@ inline glm::vec3 convertDepth2Point(const glm::mat4& proj_inv, glm::vec3 pt_img,
 std::vector<glm::vec3> FBO::ConvertDepthImage2PointCloud(
 	const glm::mat4 proj_inv, const bool full)
 {
-	std::vector<glm::vec3> cloud;
+	std::vector<glm::vec3> point;
 
 	if (nullptr == buffer_depth) {
 		fprintf(stderr, "ERROR: depth buffer does not exist.");
-		return cloud;
+		return point;
 	}
 
 	if (full) {
 		// same with image size
-		cloud = std::vector<glm::vec3>(width * height);
+		point = std::vector<glm::vec3>(width * height);
 
 		for (int j = 0; j < height; j++)
 		for (int i = 0; i < width; i++)
 		{
 			float d = buffer_depth[i + j * width];
 			glm::vec3 pt2d(i, j, d);
-			cloud[i + j * width] = convertDepth2Point(proj_inv, pt2d, width, height);
+			point[i + j * width] = convertDepth2Point(proj_inv, pt2d, width, height);
 		}
 	}
 	else {
@@ -190,11 +190,60 @@ std::vector<glm::vec3> FBO::ConvertDepthImage2PointCloud(
 			if (0.0f == d) continue; // filter un-rendered pixel
 
 			glm::vec3 pt2d(i, j, d);
-			cloud.push_back(convertDepth2Point(proj_inv, pt2d, width, height));
+			point.push_back(convertDepth2Point(proj_inv, pt2d, width, height));
 		}
 	}
 
-	return cloud;
+	return point;
+}
+std::pair<std::vector<glm::vec3>, std::vector<glm::u8vec3>> 
+FBO::ConvertDepthImage2PointCloudWithColor(
+	const glm::mat4 proj_inv, const bool full)
+{
+	std::vector<glm::vec3> point;
+	std::vector<glm::u8vec3> color;
+
+	if (nullptr == buffer_color || nullptr == buffer_depth) {
+		fprintf(stderr, "ERROR: depth buffer does not exist.");
+		return std::pair<std::vector<glm::vec3>, std::vector<glm::u8vec3>>(point, color);
+	}
+
+	if (full) {
+		// same with image size
+		point = std::vector<glm::vec3>(width * height);
+		color = std::vector<glm::u8vec3>(width * height);
+
+		for (int j = 0; j < height; j++)
+		for (int i = 0; i < width; i++)
+		{
+			float d = buffer_depth[i + j * width];
+			glm::vec3 pt2d(i, j, d);
+			point[i + j * width] = convertDepth2Point(proj_inv, pt2d, width, height);
+
+			GLubyte r = buffer_color[3 * (i + j * width) + 0];
+			GLubyte g = buffer_color[3 * (i + j * width) + 1];
+			GLubyte b = buffer_color[3 * (i + j * width) + 2];
+			color[i + j * width] = glm::u8vec3(r, g, b);
+		}
+	}
+	else {
+		for (int j = 0; j < height; j++)
+		for (int i = 0; i < width; i++)
+		{
+			float d = buffer_depth[i + j * width];
+			if (0.0f == d) continue; // filter un-rendered pixel
+
+			glm::vec3 pt2d(i, j, d);
+			point.push_back(convertDepth2Point(proj_inv, pt2d, width, height));
+
+			GLubyte r = buffer_color[3 * (i + j * width) + 0];
+			GLubyte g = buffer_color[3 * (i + j * width) + 1];
+			GLubyte b = buffer_color[3 * (i + j * width) + 2];
+			color.push_back(glm::u8vec3(r, g, b));
+		}
+	}
+
+	return std::pair<std::vector<glm::vec3>, std::vector<glm::u8vec3>>(point, color);
 }
 
 std::set<glm::uint> FBO::GetVisibleVertexIndices(
