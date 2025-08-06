@@ -34,6 +34,12 @@ public:
 		func();
 		Disable();
 	}
+
+	GLint GetUniformLocation(const char* variable){
+		GLint loc = glGetUniformLocation(program, variable);
+		return loc;
+	}
+
 private:
 	GLuint program;
 	GLuint shader_vert;

@@ -52,10 +52,12 @@ void GLShader::Compile(const std::string& shaderCode, SHADER_TYPE type)
 	if (SHADER_TYPE::VERTEX == type) {
 		hShader = &shader_vert;
 		shader_type = GL_VERTEX_SHADER;
+		//printf("selected: vertex shader\n");
 	}
 	else if (SHADER_TYPE::FRAGMENT == type) {
 		hShader = &shader_frag;
 		shader_type = GL_FRAGMENT_SHADER;
+		//printf("selected: fragment shader\n");
 	}
 	else {
 		fprintf(stderr, "ERROR: incompatible shader type.\n");
