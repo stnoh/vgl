@@ -25,6 +25,7 @@ public:
 
 	// user-defined function
 	void LoadMesh();
+	void GetVisibleFaces();
 
 private:
 	void drawView3D(glm::mat4 proj, glm::mat4 view);

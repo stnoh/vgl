@@ -46,6 +46,16 @@ FBO::~FBO()
 	glDeleteRenderbuffers(1, &rboColor);
 	glDeleteRenderbuffers(1, &rboDepth);
 	glDeleteFramebuffers(1, &fbo);
+
+	// release buffers if exist
+	if (nullptr != buffer_color) {
+		delete buffer_color;
+		buffer_color = nullptr;
+	}
+	if (nullptr != buffer_depth) {
+		delete buffer_depth;
+		buffer_depth = nullptr;
+	}
 }
 
 
@@ -62,6 +72,18 @@ void FBO::Disable()
 {
 	// disable framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	// release buffers if exist
+	if (nullptr != buffer_color)
+	{
+		delete buffer_color;
+		buffer_color = nullptr;
+	}
+	if (nullptr != buffer_depth)
+	{
+		delete buffer_depth;
+		buffer_depth = nullptr;
+	}
 }
 
 bool FBO::Resize(const int width, const int height)
@@ -81,4 +103,132 @@ bool FBO::Resize(const int width, const int height)
 	else this->height = height;
 
 	return !failed;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+// copy data from GPU memory
+///////////////////////////////////////////////////////////////////////////////
+void FBO::CopyColorToBuffer()
+{
+	// release buffer if exists
+	if (nullptr != buffer_color) {
+		delete buffer_color;
+		buffer_color = nullptr;
+	}
+
+	// allocate buffer & copy
+	buffer_color = new GLubyte[(size_t)width * height * 3];
+	glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, buffer_color);
+}
+void FBO::CopyDepthToBuffer()
+{
+	// release buffer if exists
+	if (nullptr != buffer_depth) {
+		delete buffer_depth;
+		buffer_depth = nullptr;
+	}
+
+	// allocate buffer & copy
+	buffer_depth = new GLfloat[(size_t)width * height];
+	glReadPixels(0, 0, width, height, GL_DEPTH_COMPONENT, GL_FLOAT, buffer_depth);
+
+	// convert depth to 3D data
+	for (int j = 0; j < height; j++)
+	for (int i = 0; i < width ; i++)
+	{
+		float z_b = buffer_depth[i + j* width];
+		buffer_depth[i + j* width] = (1.0f == z_b) ? 0.0f : z_b; // <inf> -> 0.0
+	}
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+// convert depth image to point cloud (in GL coordinate)
+// similar to glm::unProject, but it provides more efficient routine
+///////////////////////////////////////////////////////////////////////////////
+inline glm::vec3 convertDepth2Point(const glm::mat4& proj_inv, glm::vec3 pt_img, float width, float height)
+{
+	// normalize point on 2D image plane
+	pt_img.x = (pt_img.x + 0.5f) / width;
+	pt_img.y = (pt_img.y + 0.5f) / height;
+
+	// convert from NDC: ( [-1.0:+1.0], [-1.0:+1.0], [-1.0:+1.0] )
+	glm::vec4 pt_NDC = glm::vec4(2.0f * pt_img - 1.0f, 1.0f);
+	glm::vec4 pt3d = proj_inv * pt_NDC;
+
+	// perspective-awareness
+	return pt3d / pt3d.w;
+}
+std::vector<glm::vec3> FBO::ConvertDepthImage2PointCloud(
+	const glm::mat4 proj_inv, const bool full)
+{
+	std::vector<glm::vec3> cloud;
+
+	if (nullptr == buffer_depth) {
+		fprintf(stderr, "ERROR: depth buffer does not exist.");
+		return cloud;
+	}
+
+	if (full) {
+		// same with image size
+		cloud = std::vector<glm::vec3>(width * height);
+
+		for (int j = 0; j < height; j++)
+		for (int i = 0; i < width; i++)
+		{
+			float d = buffer_depth[i + j * width];
+			glm::vec3 pt2d(i, j, d);
+			cloud[i + j * width] = convertDepth2Point(proj_inv, pt2d, width, height);
+		}
+	}
+	else {
+		for (int j = 0; j < height; j++)
+		for (int i = 0; i < width; i++)
+		{
+			float d = buffer_depth[i + j * width];
+			if (0.0f == d) continue; // filter un-rendered pixel
+
+			glm::vec3 pt2d(i, j, d);
+			cloud.push_back(convertDepth2Point(proj_inv, pt2d, width, height));
+		}
+	}
+
+	return cloud;
+}
+
+std::set<glm::uint> FBO::GetVisibleVertexIndices(
+	glm::mat4 ProjViewModel, const std::vector<glm::vec3>& model_verts,
+	const float threshold)
+{
+	std::set<glm::uint> v_indices;
+
+	if (nullptr == buffer_depth) {
+		fprintf(stderr, "ERROR: depth buffer does not exist.");
+		return v_indices;
+	}
+
+	// convert buffer value to camera space Z
+	for (int vidx = 0; vidx < model_verts.size(); vidx++)
+	{
+		glm::vec4 pt_proj = ProjViewModel * glm::vec4(model_verts[vidx], 1.0f);
+		glm::vec3 pt_NDC = pt_proj / pt_proj.w;
+
+		// filter 1) out of screen
+		if (pt_NDC.x < -1.0 || +1.0 < pt_NDC.x ||
+			pt_NDC.y < -1.0 || +1.0 < pt_NDC.y) continue;
+
+		// filter 2) compare to rendered depth
+		glm::vec2 pt2d = glm::vec2(0.5f * (pt_NDC + 1.0f));
+		int i = width *  pt2d.x;
+		int j = height * pt2d.y;
+		float d = buffer_depth[i + j * width];
+		float pixel_z = 2.0f * d - 1.0f;
+
+		if (glm::length(pt_NDC.z - pixel_z) > threshold) continue;
+
+		v_indices.insert(vidx);
+	}
+
+	return v_indices;
 }

@@ -7,6 +7,10 @@ Author: Seung-Tak Noh (seungtak.noh [at] gmail.com)
 
 #include <GL/glew.h>
 
+#include <vector>
+#include <set>
+#include <glm/glm.hpp>
+
 namespace vgl {
 
 class FBO
@@ -21,11 +25,24 @@ public:
 
 	bool Resize(const int width, const int height);
 
+	void CopyColorToBuffer();
+	void CopyDepthToBuffer();
+
+	std::vector<glm::vec3> ConvertDepthImage2PointCloud(
+		const glm::mat4 proj_inv, const bool full = false);
+
+	std::set<glm::uint> GetVisibleVertexIndices(
+		glm::mat4 ProjViewModel, const std::vector<glm::vec3>& model_verts,
+		const float threshold = 1e-3);
+
 private:
 
 	GLuint fbo;
 	GLuint rboColor;
 	GLuint rboDepth;
+
+	GLubyte* buffer_color = nullptr;
+	GLfloat* buffer_depth = nullptr;
 
 	int width;
 	int height;
