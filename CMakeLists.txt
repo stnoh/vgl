@@ -104,3 +104,4 @@ target_compile_options(AntTweakBar PRIVATE "/wd4302") ## AntTweakBar-related war
 add_subdirectory(apps/app101)
 add_subdirectory(apps/app102)
 add_subdirectory(apps/app103)
+add_subdirectory(apps/app105)
