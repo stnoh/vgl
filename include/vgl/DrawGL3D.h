@@ -40,6 +40,11 @@ void setLight(GLenum lightNum, glm::vec4 lightPos,
 	const glm::vec4 ambient  = glm::vec4(0.1f, 0.1f, 0.1f, 0.1f), 
 	const glm::vec4 diffuse  = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
 	const glm::vec4 specular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f) );
+
+// convert normal to normalmap color
+//inline glm::u8vec3 getNormalColor(const glm::vec3& normal); // no need to expose
+std::vector<glm::u8vec3> GetNormalColors(const std::vector<glm::vec3>& normal);
+
 }
 
 #endif

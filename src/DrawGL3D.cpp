@@ -350,4 +350,26 @@ void setLight(GLenum lightNum, glm::vec4 lightPos,
 	glEnable(lightNum);
 }
 
+
+///////////////////////////////////////////////////////////////////////////////
+// convert normal to normalmap color
+///////////////////////////////////////////////////////////////////////////////
+inline glm::u8vec3 getNormalColor(const glm::vec3& normal)
+{
+	// coloring is based on "normal = (2*color)-1"
+	// http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-13-normal-mapping/
+	glm::vec3 n = glm::normalize(normal);
+	glm::vec3 c = 127.5f * (n + glm::vec3(1.0));
+	return c;
+}
+std::vector<glm::u8vec3> GetNormalColors(const std::vector<glm::vec3>& normal)
+{
+	std::vector<glm::u8vec3> colors;
+	for (glm::vec3 _n : normal) {
+		colors.push_back(getNormalColor(_n));
+	}
+
+	return colors;
+}
+
 }
