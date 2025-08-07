@@ -8,12 +8,17 @@
 #include <tinyfiledialogs.h>
 
 std::string shader_vs = R"(
+#version 330 core
+in vec2 vert;
+
 void main()
 {
-	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+	gl_Position = vec4(vert, 1.0f, 1.0f);
 }
 )";
 std::string shader_fs = R"(
+#version 330 core
+
 uniform float time;
 uniform vec2 mouse;
 uniform vec2 resolution;
