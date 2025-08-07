@@ -1,6 +1,8 @@
 #include <vgl/AppGLBase.h>
 #include <vgl/GLShader.h>
 
+#include <glm/ext.hpp>
+
 #include <chrono>
 
 #include <fstream>
@@ -11,9 +13,11 @@ std::string shader_vs = R"(
 #version 330 core
 in vec2 vert;
 
+uniform mat4 mvp;
+
 void main()
 {
-	gl_Position = vec4(vert, 1.0f, 1.0f);
+	gl_Position = mvp * vec4(vert, 1.0f, 1.0f);
 }
 )";
 std::string shader_fs = R"(
@@ -42,6 +46,9 @@ public:
 		if (use_shader) {
 			shader->Enable();
 
+			// default projection * view * model
+			glm::mat4 identity = glm::mat4(1.0f);
+
 			// elapsed time in seconds
 			std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
 			auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(now - time_stamp);
@@ -53,6 +60,9 @@ public:
 
 			// pass data to shader
 			GLuint loc;
+			loc = shader->GetUniformLocation("mvp");
+			if (-1 != loc) glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(identity));
+
 			loc = shader->GetUniformLocation("time");
 			if (-1 != loc) glUniform1f(loc, time);
 			//printf("time: %f [sec]\r", time);
