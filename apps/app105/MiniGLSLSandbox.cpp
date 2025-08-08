@@ -125,9 +125,11 @@ public:
 private:
 	void ReloadShader()
 	{
+		char const* filterPatterns[1] = { "*.frag" };
+
 		char* filepath = tinyfd_openFileDialog(
-			"Read .glsl shader for pixel shader",
-			"./", 0, NULL, NULL, 0);
+			"Read .frag shader for GLSL fragment shader",
+			"./", 1, filterPatterns, NULL, 0);
 
 		if (filepath)
 		{
@@ -155,7 +157,6 @@ private:
 				time_stamp = std::chrono::system_clock::now();
 			}
 		}
-
 	}
 
 	bool use_shader = true;
