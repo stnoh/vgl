@@ -13,11 +13,11 @@ find_package(OpenGL REQUIRED)
 ## GLFW
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-add_subdirectory(${CMAKE_SOURCE_DIR}/external/glfw)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/external/glfw)
 
 ## GLEW
 set(USE_GLU ON CACHE BOOL "" FORCE) ## use GLU for compatibility
-add_subdirectory(${CMAKE_SOURCE_DIR}/external/glew-cmake)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/external/glew-cmake)
 
 ## AntTweakBar
 set(ATB_GUIRENDERER_USE_LEGACY_GL ON CACHE BOOL "" FORCE)
@@ -35,7 +35,7 @@ set(ATB_EVENT_HANDLER_GLFW3 ON CACHE BOOL "" FORCE)
 #set(ATB_EVENT_HANDLER_SDL20 OFF CACHE BOOL "" FORCE)
 #set(ATB_EVENT_HANDLER_SFML OFF CACHE BOOL "" FORCE)
 
-add_subdirectory(${CMAKE_SOURCE_DIR}/external/AntTweakBar)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/external/AntTweakBar)
 
 
 ###############################################################################
@@ -76,12 +76,12 @@ add_library(tinyfd STATIC ${header_tinyfd} ${source_tinyfd})
 ## add headers
 target_include_directories(vgl PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include
-  ${CMAKE_SOURCE_DIR}/external/glm
-  ${CMAKE_SOURCE_DIR}/external/glfw/include
-  ${CMAKE_SOURCE_DIR}/external/glew-cmake/include
-  ${CMAKE_SOURCE_DIR}/external/AntTweakBar/TweakBar/include
-  ${CMAKE_SOURCE_DIR}/external/tinyfd
-  ${CMAKE_SOURCE_DIR}/external/dirent/include
+  ${CMAKE_CURRENT_SOURCE_DIR}/external/glm
+  ${CMAKE_CURRENT_SOURCE_DIR}/external/glfw/include
+  ${CMAKE_CURRENT_SOURCE_DIR}/external/glew-cmake/include
+  ${CMAKE_CURRENT_SOURCE_DIR}/external/AntTweakBar/TweakBar/include
+  ${CMAKE_CURRENT_SOURCE_DIR}/external/tinyfd
+  ${CMAKE_CURRENT_SOURCE_DIR}/external/dirent/include
 )
 
 ## link *.lib
