@@ -10,3 +10,6 @@
 [submodule "external/AntTweakBar"]
 	path = external/AntTweakBar
 	url = https://github.com/tschw/AntTweakBar
+[submodule "external/dirent"]
+	path = external/dirent
+	url = https://github.com/tronkko/dirent
