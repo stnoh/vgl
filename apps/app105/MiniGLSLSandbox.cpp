@@ -4,6 +4,7 @@
 #include <glm/ext.hpp>
 
 #include <chrono>
+#include <iostream>
 
 #include <fstream>
 #include <sstream>
@@ -85,7 +86,13 @@ public:
 			//printf("surfaceSize: %7.3f %7.3f\r", width, 1.0f);
 
 			// [CAUTION] last query should be "backbuffer"
-			//loc = shader->GetUniformLocation("backbuffer");
+			loc = shader->GetUniformLocation("backbuffer");
+			if (-1 != loc && 0 != renderTexture) {
+				// the first texture
+				glActiveTexture(GL_TEXTURE0 + 0); // [IMPORTANT]
+				glBindTexture(GL_TEXTURE_2D, renderTexture);
+				glUniform1i(loc, 0);
+			}
 		}
 
 		// compute 
@@ -109,7 +116,42 @@ public:
 
 		DrawQuad();
 
-		if (use_shader) shader->Disable();
+		if (use_shader) {
+
+			// render again for "backbuffer"
+			if (-1 != loc) {
+				if (0 == renderTexture || width != tex_width || height != tex_height) {
+					if (0 != renderTexture) glDeleteTextures(1, &renderTexture);
+
+					tex_width  = width;
+					tex_height = height;
+
+					// create texture with settings
+					renderTexture = 0;
+					glGenTextures(1, &renderTexture);
+					glBindTexture(GL_TEXTURE_2D, renderTexture);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+					
+					// allocate texture
+					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tex_width, tex_height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+				}
+
+				// render to texture for "backbuffer"
+				glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, renderTexture, 0);
+				if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+					std::cerr << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
+
+				DrawQuad();
+				glBindFramebuffer(GL_FRAMEBUFFER, 0); // revert target to display
+				glBindTexture(GL_TEXTURE_2D, 0);
+			}
+
+			shader->Disable();
+		}
 	}
 
 	////////////////////////////////////////
@@ -117,14 +159,19 @@ public:
 	////////////////////////////////////////
 	bool Init()
 	{
+		// shader loader
 		shader = new vgl::GLShader();
 		shader->Compile(shader_vs, vgl::SHADER_TYPE::VERTEX);
 		shader->Compile(shader_fs, vgl::SHADER_TYPE::FRAGMENT);
 		shader->Link();
 
-		InitUserInteraction();
+		// prepare FBO for "backbuffer"
+		glGenFramebuffers(1, &fbo);
+		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0); // revert target to display
 
-		time_stamp = std::chrono::system_clock::now();
+		// initialize interaction data
+		InitUserInteraction();
 
 		TwDefine("Bar size='150 250'");
 		TwAddVarRW(bar, "UseShader", TwType::TW_TYPE_BOOLCPP, &use_shader, "key=SPACE");
@@ -142,6 +189,16 @@ public:
 		if (nullptr != shader) {
 			delete shader;
 			shader = nullptr;
+		}
+
+		if (renderTexture) {
+			glDeleteTextures(1, &renderTexture);
+			renderTexture = 0;
+		}
+
+		if (fbo) {
+			glDeleteFramebuffers(1, &fbo);
+			fbo = 0;
 		}
 	}
 
@@ -200,7 +257,6 @@ private:
 				shader->Link();
 			}
 			else {
-				time_stamp = std::chrono::system_clock::now();
 				InitUserInteraction();
 			}
 		}
@@ -218,6 +274,7 @@ private:
 		center_x = 0.0f;
 		center_y = 0.0f;
 		fov = 1.0f;
+		time_stamp = std::chrono::system_clock::now();
 	}
 	float center_x;
 	float center_y;
@@ -230,6 +287,12 @@ private:
 	std::chrono::system_clock::time_point time_stamp;
 
 	vgl::GLShader* shader = nullptr;
+
+	// FBO and texture for "backbuffer"
+	GLuint fbo = 0;
+	GLuint renderTexture = 0;
+	int tex_width  = -1;
+	int tex_height = -1;
 };
 
 
