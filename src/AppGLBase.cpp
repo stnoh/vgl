@@ -111,8 +111,6 @@ AppGLBase::AppGLBase(const int width, const int height)
 		AppGLBase* appGL = (AppGLBase*)glfwGetWindowUserPointer(window);
 
 		// reserve mouse cursor position
-		appGL->mouse_prev_x = appGL->mouse_this_x;
-		appGL->mouse_prev_y = appGL->mouse_this_y;
 		appGL->mouse_this_x = (int)xpos;
 		appGL->mouse_this_y = (int)ypos;
 

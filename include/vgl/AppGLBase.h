@@ -42,7 +42,6 @@ protected:
 	bool internalProcess;
 
 	int mouse_button[3] = { 0, 0, 0 }; // left, right, middle button
-	int mouse_prev_x = 0, mouse_prev_y = 0;
 	int mouse_this_x = 0, mouse_this_y = 0;
 };
 
