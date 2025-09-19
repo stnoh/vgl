@@ -1,5 +1,5 @@
-#ifndef SIMPLE_SHADER_APP
-#define SIMPLE_SHADER_APP
+#ifndef SIMPLE_DRAW_APP
+#define SIMPLE_DRAW_APP
 
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
