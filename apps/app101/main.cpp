@@ -1,35 +1,36 @@
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
+#include <vgl/AppGLBase.h>
 
-static void quit(GLFWwindow* window, int key, int scancode, int action, int mods)
+class TestAppGL : public AppGLBase
 {
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
-        glfwSetWindowShouldClose(window, GLFW_TRUE);
-    }
-}
+public:
+	TestAppGL(const int width, const int height) : AppGLBase(width, height) {};
 
-int main(int argc, char* argv[])
+	// mandatory callback
+	void Draw(const int width, const int height)
+	{
+		static int count = 0;
+		printf("draw call: %d\r", count++);
+
+		glClearColor(0.2f, 0.3f, 0.5f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	}
+
+	// override callback
+	void GetKey(int key, int action) {
+		if (GLFW_KEY_TAB == key && GLFW_PRESS == action) {
+			SetInternalProcess(!internalProcess);
+		}
+	};
+};
+
+
+///////////////////////////////////////////////////////////////////////////////
+// entry point
+///////////////////////////////////////////////////////////////////////////////
+int main(int argc, char** argv)
 {
-    glfwInit();
-
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-    GLFWwindow* window = glfwCreateWindow(1280, 720, "GLFW OpenGL", NULL, NULL);
-    glfwMakeContextCurrent(window);
-
-    glewInit();
-
-    glfwSetKeyCallback(window, quit);
-    while (!glfwWindowShouldClose(window)) {
-        glfwPollEvents();
-
-        glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-        glfwSwapBuffers(window);
-    }
-
-    glfwDestroyWindow(window);
-    glfwTerminate();
+	TestAppGL app(640, 480);
+	app.SetInternalProcess(false); // false: only updated when it is "dirty"
+	app.run();
+	return EXIT_SUCCESS;
 }

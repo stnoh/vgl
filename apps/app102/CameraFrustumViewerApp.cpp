@@ -1,4 +1,4 @@
-#include "Example103.h"
+#include "CameraFrustumViewerApp.h"
 #include <vgl/plyFileIO.h>
 #include <tinyfiledialogs.h>
 
@@ -6,7 +6,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // mandatory member function
 ///////////////////////////////////////////////////////////////////////////////
-void Example103::Draw(const int width, const int height)
+void CameraFrustumViewerApp::Draw(const int width, const int height)
 {
 	// left / right
 	int w_2 = width / 2;
@@ -43,7 +43,7 @@ void Example103::Draw(const int width, const int height)
 	glDisable(GL_SCISSOR_TEST);
 }
 
-void Example103::drawView3D(glm::mat4 proj, glm::mat4 view)
+void CameraFrustumViewerApp::drawView3D(glm::mat4 proj, glm::mat4 view)
 {
 	glMatrixMode(GL_PROJECTION); glLoadMatrixf(glm::value_ptr(proj));
 	glMatrixMode(GL_MODELVIEW);  glLoadMatrixf(glm::value_ptr(view));
@@ -99,7 +99,7 @@ void Example103::drawView3D(glm::mat4 proj, glm::mat4 view)
 ///////////////////////////////////////////////////////////////////////////////
 // override member functions
 ///////////////////////////////////////////////////////////////////////////////
-bool Example103::Init()
+bool CameraFrustumViewerApp::Init()
 {
 	// instantiate camera object
 	rendercam = new vgl::GLCamera();
@@ -122,7 +122,7 @@ bool Example103::Init()
 	// global viewer
 #if 1
 	TwAddButton(bar, "Global-init", [](void *client) {
-		Example103* _this = (Example103*)client; _this->resetGlobalView();
+		CameraFrustumViewerApp* _this = (CameraFrustumViewerApp*)client; _this->resetGlobalView();
 	}, this, "group='Global' label='init' ");
 	TwAddVarRW(bar, "Global-rot" , TwType::TW_TYPE_QUAT4F, &GlobalViewRotation , "group='Global' label='rot'  open");
 	TwAddVarRW(bar, "Global-posX", TwType::TW_TYPE_FLOAT, &GlobalViewPosition.x, "group='Global' label='posX' step=0.01");
@@ -134,12 +134,12 @@ bool Example103::Init()
 #if 1
 	TwAddButton(bar, "Model-LoadMesh",
 		[](void* client) {
-		Example103* _this = (Example103*)client;
+		CameraFrustumViewerApp* _this = (CameraFrustumViewerApp*)client;
 		_this->LoadMesh();
 	}, this, "group='Model' label='LoadMesh' key=F3");
 
 	TwAddButton(bar, "Model-init", [](void* client) {
-		Example103* _this = (Example103*)client; _this->resetModelMatrix();
+		CameraFrustumViewerApp* _this = (CameraFrustumViewerApp*)client; _this->resetModelMatrix();
 	}, this, "group='Model' label='init' ");
 	TwAddVarRW(bar, "Model-rot", TwType::TW_TYPE_QUAT4F, &ModelRotation, "group='Model' label='rot'   open");
 	TwAddVarRW(bar, "Model-posX", TwType::TW_TYPE_FLOAT, &ModelPosition.x, "group='Model' label='posX'  step=0.01");
@@ -151,7 +151,7 @@ bool Example103::Init()
 	// view matrix related properties (local camera)
 #if 1
 	TwAddButton(bar, "Local-init", [](void *client) {
-		Example103* _this = (Example103*)client; _this->resetCameraView();
+		CameraFrustumViewerApp* _this = (CameraFrustumViewerApp*)client; _this->resetCameraView();
 	}, this, "group='Local' label='init' ");
 	TwAddVarRW(bar, "Local-rot" , TwType::TW_TYPE_QUAT4F, &rendercam->rotation  , "group='Local' label='rot'  open");
 	TwAddVarRW(bar, "Local-posX", TwType::TW_TYPE_FLOAT , &rendercam->position.x, "group='Local' label='posX' step=0.01");
@@ -165,12 +165,12 @@ bool Example103::Init()
 #if 1
 	TwAddButton(bar, "GetVisibleFaces",
 		[](void* client) {
-		Example103* _this = (Example103*)client;
+		CameraFrustumViewerApp* _this = (CameraFrustumViewerApp*)client;
 		_this->GetVisibleFaces();
 	}, this, "key=SPACE");
 	TwAddButton(bar, "GetVisiblePointCloud",
 		[](void* client) {
-		Example103* _this = (Example103*)client;
+		CameraFrustumViewerApp* _this = (CameraFrustumViewerApp*)client;
 		_this->GetVisiblePointCloud();
 	}, this, "key=P");
 #endif
@@ -203,7 +203,7 @@ bool Example103::Init()
 
 	return true;
 }
-void Example103::End()
+void CameraFrustumViewerApp::End()
 {
 	if (rendercam) {
 		delete rendercam;
@@ -219,7 +219,7 @@ void Example103::End()
 ///////////////////////////////////////////////////////////////////////////////
 // user-defined function
 ///////////////////////////////////////////////////////////////////////////////
-void Example103::LoadMesh()
+void CameraFrustumViewerApp::LoadMesh()
 {
 	char const* filterPatterns[1] = {"*.ply"};
 
@@ -238,7 +238,7 @@ void Example103::LoadMesh()
 		C = vgl::GetNormalColors(N); // get normalmap color from vertex normal
 	}
 }
-void Example103::GetVisiblePointCloud()
+void CameraFrustumViewerApp::GetVisiblePointCloud()
 {
 	P_visible.clear();
 
@@ -270,7 +270,7 @@ void Example103::GetVisiblePointCloud()
 
 	printf("# visible points V = %d\r", P_visible.size() );
 }
-void Example103::GetVisibleFaces()
+void CameraFrustumViewerApp::GetVisibleFaces()
 {
 	// clear submesh information in advance
 	F_visible.clear();
@@ -353,7 +353,7 @@ void Example103::GetVisibleFaces()
 ///////////////////////////////////////////////////////////////////////////////
 int main(int argc, char** argv)
 {
-	Example103 app(1280, 640);
+	CameraFrustumViewerApp app(1280, 640);
 
 	app.SetInternalProcess(true); // update when it is dirty
 	app.run();

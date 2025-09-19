@@ -1,5 +1,5 @@
-#ifndef APP_GL_EXAMPLE_103
-#define APP_GL_EXAMPLE_103
+#ifndef CAMERA_FRUSTUM_VIEWER_APP
+#define CAMERA_FRUSTUM_VIEWER_APP
 
 #include <vgl/AppGLBase.h>
 
@@ -11,10 +11,10 @@
 #include <vgl/GLCamera.h>
 #include <vgl/FBO.h>
 
-class Example103 : public AppGLBase
+class CameraFrustumViewerApp : public AppGLBase
 {
 public:
-	Example103(const int width, const int height) : AppGLBase(width, height) { };
+	CameraFrustumViewerApp(const int width, const int height) : AppGLBase(width, height) { };
 
 	// mandatory member function
 	void Draw(const int width, const int height);
