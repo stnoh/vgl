@@ -1,41 +1,46 @@
-#include "SimpleDrawApp.h"
+#include <vgl/Util.h>
+#include <vgl/AppGLBase.h>
+#include <glm/gtc/type_ptr.hpp>
 
-
-///////////////////////////////////////////////////////////////////////////////
-// mandatory member function
-///////////////////////////////////////////////////////////////////////////////
-void SimpleDrawApp::Draw(const int width, const int height)
+class SimpleDrawApp : public AppGLBase
 {
-	glClearColor(0.25f, 0.25f, 0.25f, 0.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+public:
+	SimpleDrawApp(const int width, const int height) : AppGLBase(width, height) { };
 
-	glMatrixMode(GL_PROJECTION); glLoadMatrixf(glm::value_ptr(ortho_proj));
-	glMatrixMode(GL_MODELVIEW);  glLoadIdentity();
+	// mandatory member function
+	void Draw(const int width, const int height)
+	{
+		glClearColor(0.25f, 0.25f, 0.25f, 0.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	glBegin(GL_TRIANGLES);
-	glColor3f(1.0f, 0.0f, 0.0f); glVertex3f(-0.5f, -0.5f, +0.0f);
-	glColor3f(0.0f, 1.0f, 0.0f); glVertex3f(+0.0f, +0.5f, +0.0f);
-	glColor3f(0.0f, 0.0f, 1.0f); glVertex3f(+0.5f, -0.5f, +0.0f);
-	glEnd();
-}
+		// just use simple orthogonal projection for 2D drawing
+		if (false) {
+			// Legacy GL
+			glMatrixMode(GL_PROJECTION); glLoadIdentity();
+		}
+		else {
+			glm::mat4 ortho_proj = glm::ortho(-1.0f, +1.0f, -1.0f, +1.0f, +1.0f, -1.0f); // [CAUTION] z-near and z-far
+			vgl::ShowMatrix4x4(ortho_proj);
+			glMatrixMode(GL_PROJECTION); glLoadMatrixf(glm::value_ptr(ortho_proj));
+		}
 
+		glMatrixMode(GL_MODELVIEW);  glLoadIdentity();
 
-///////////////////////////////////////////////////////////////////////////////
-// override member functions
-///////////////////////////////////////////////////////////////////////////////
-bool SimpleDrawApp::Init()
-{
-	TwDefine("Bar iconified=true");
+		glBegin(GL_TRIANGLES);
+		glColor3f(1.0f, 0.0f, 0.0f); glVertex3f(-0.5f, -0.5f, +0.0f);
+		glColor3f(0.0f, 1.0f, 0.0f); glVertex3f(+0.0f, +0.5f, +0.0f);
+		glColor3f(0.0f, 0.0f, 1.0f); glVertex3f(+0.5f, -0.5f, +0.0f);
+		glEnd();
+	}
 
-	// just use simple orthogonal projection for 2D drawing
-	ortho_proj = glm::ortho(-1.0f, +1.0f, -1.0f, +1.0f);
+	// override member functions
+	bool Init()
+	{
+		TwDefine("Bar iconified=true");
 
-	return true;
-}
-void SimpleDrawApp::End()
-{
-
-}
+		return true;
+	}
+};
 
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -65,6 +65,11 @@ void CameraFrustumViewerApp::drawView3D(glm::mat4 proj, glm::mat4 view)
 		vgl::drawAxes(1.0f);
 		glDisable(GL_LIGHTING);
 
+		// draw grid on Y-plane as black color
+		glColor3f(0.0f, 0.0f, 0.0f);
+		glLineWidth(1.0f);
+		vgl::drawGridXZ(10.0f, 10);
+
 		glPopMatrix();
 	}
 	glDisable(GL_RESCALE_NORMAL);
