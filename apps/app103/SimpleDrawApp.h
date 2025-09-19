@@ -1,9 +1,10 @@
 #ifndef SIMPLE_SHADER_APP
 #define SIMPLE_SHADER_APP
 
-#include <vgl/AppGLBase.h>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
-#include <vgl/FBO.h>
+#include <vgl/AppGLBase.h>
 
 class SimpleDrawApp : public AppGLBase
 {
@@ -18,7 +19,7 @@ public:
 	void End();
 
 private:
-
+	glm::mat4 ortho_proj;
 };
 
 #endif
