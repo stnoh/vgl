@@ -23,11 +23,6 @@ public:
 	bool Init();
 	void End();
 
-	// user-defined function
-	void LoadMesh();
-	void GetVisiblePointCloud();
-	void GetVisibleFaces();
-
 private:
 	void drawView3D(glm::mat4 proj, glm::mat4 view);
 
@@ -46,20 +41,9 @@ private:
 	vgl::GLCamera* rendercam = nullptr;
 	void resetCameraView() {
 		// oblique view as default
-		rendercam->position = glm::vec3(0.0f, 0.0f, 2.0f);
-		rendercam->rotation = glm::quat(glm::radians(glm::vec3(0.0f, 0.0f, 0.0f)));
+		rendercam->position = glm::vec3(0.0f, 1.5f, 1.5f);
+		rendercam->rotation = glm::quat(glm::radians(glm::vec3(-45.0f, 0.0f, 0.0f)));
 	}
-
-	// offscreen renderer
-	vgl::FBO* offscreenFBO = nullptr;
-
-	// container for 3D mesh
-	std::vector<glm::vec3> V, N; // vertex/normal
-	std::vector<glm::u8vec3> C;  // vertex color
-	std::vector<glm::uint> F;
-
-	std::vector<glm::vec3> P_visible; // visible points
-	std::vector<glm::uint> F_visible; // visible faces
 
 	// model matrix for 3D mesh
 	glm::quat ModelRotation;

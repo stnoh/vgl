@@ -62,19 +62,8 @@ void CameraFrustumViewerApp::drawView3D(glm::mat4 proj, glm::mat4 view)
 
 		// draw 3D axes
 		glEnable(GL_LIGHTING);
-		if (V.empty()) vgl::drawAxes(1.0f);
+		vgl::drawAxes(1.0f);
 		glDisable(GL_LIGHTING);
-
-		// draw original mesh with normal map color
-		vgl::drawTriMesh(V, N, C, F);
-
-		// draw visible submesh with yellow color
-		glColor3f(1.0f, 1.0f, 0.0f);
-
-		glEnable(GL_POLYGON_OFFSET_FILL); // for superimpose
-		glPolygonOffset(-0.5f, 0.5f);
-		vgl::drawTriMesh(V, F_visible);
-		glDisable(GL_POLYGON_OFFSET_FILL);
 
 		glPopMatrix();
 	}
@@ -87,10 +76,6 @@ void CameraFrustumViewerApp::drawView3D(glm::mat4 proj, glm::mat4 view)
 	glColor3f(1.0f, 1.0f, 0.0f);
 	glLineWidth(2.0f);
 	rendercam->SetCameraCoord([&] {
-
-		// draw visible point cloud with cyan color
-		glColor3f(0.0f, 1.0f, 1.0f);
-		vgl::drawPointCloud(P_visible);
 
 	}, true);
 }
@@ -111,9 +96,6 @@ bool CameraFrustumViewerApp::Init()
 	resetCameraView();
 	resetModelMatrix();
 
-	// instantiate frame buffer object
-	offscreenFBO = new vgl::FBO();
-
 	////////////////////////////////////////////////////////////
 	// UI: AntTweakBar
 	////////////////////////////////////////////////////////////
@@ -130,24 +112,6 @@ bool CameraFrustumViewerApp::Init()
 	TwAddVarRW(bar, "Global-posZ", TwType::TW_TYPE_FLOAT, &GlobalViewPosition.z, "group='Global' label='posZ' step=0.01");
 #endif
 
-	// model coordinate
-#if 1
-	TwAddButton(bar, "Model-LoadMesh",
-		[](void* client) {
-		CameraFrustumViewerApp* _this = (CameraFrustumViewerApp*)client;
-		_this->LoadMesh();
-	}, this, "group='Model' label='LoadMesh' key=F3");
-
-	TwAddButton(bar, "Model-init", [](void* client) {
-		CameraFrustumViewerApp* _this = (CameraFrustumViewerApp*)client; _this->resetModelMatrix();
-	}, this, "group='Model' label='init' ");
-	TwAddVarRW(bar, "Model-rot", TwType::TW_TYPE_QUAT4F, &ModelRotation, "group='Model' label='rot'   open");
-	TwAddVarRW(bar, "Model-posX", TwType::TW_TYPE_FLOAT, &ModelPosition.x, "group='Model' label='posX'  step=0.01");
-	TwAddVarRW(bar, "Model-posY", TwType::TW_TYPE_FLOAT, &ModelPosition.y, "group='Model' label='posY'  step=0.01");
-	TwAddVarRW(bar, "Model-posZ", TwType::TW_TYPE_FLOAT, &ModelPosition.z, "group='Model' label='posZ'  step=0.01");
-	TwAddVarRW(bar, "Model-scale", TwType::TW_TYPE_FLOAT, &ModelUniScale, "group='Model' label='scale' step=0.01");
-#endif
-
 	// view matrix related properties (local camera)
 #if 1
 	TwAddButton(bar, "Local-init", [](void *client) {
@@ -159,20 +123,6 @@ bool CameraFrustumViewerApp::Init()
 	TwAddVarRW(bar, "Local-posZ", TwType::TW_TYPE_FLOAT , &rendercam->position.z, "group='Local' label='posZ' step=0.01");
 
 	TwDefine("Bar/Local opened=false"); // close group as default
-#endif
-
-	// draw visible faces computed from depth image
-#if 1
-	TwAddButton(bar, "GetVisibleFaces",
-		[](void* client) {
-		CameraFrustumViewerApp* _this = (CameraFrustumViewerApp*)client;
-		_this->GetVisibleFaces();
-	}, this, "key=SPACE");
-	TwAddButton(bar, "GetVisiblePointCloud",
-		[](void* client) {
-		CameraFrustumViewerApp* _this = (CameraFrustumViewerApp*)client;
-		_this->GetVisiblePointCloud();
-	}, this, "key=P");
 #endif
 
 	// projection matrix related properties
@@ -209,144 +159,8 @@ void CameraFrustumViewerApp::End()
 		delete rendercam;
 		rendercam = nullptr;
 	}
-	if (offscreenFBO) {
-		delete offscreenFBO;
-		offscreenFBO = nullptr;
-	}
 }
 
-
-///////////////////////////////////////////////////////////////////////////////
-// user-defined function
-///////////////////////////////////////////////////////////////////////////////
-void CameraFrustumViewerApp::LoadMesh()
-{
-	char const* filterPatterns[1] = {"*.ply"};
-
-	char* filepath = tinyfd_openFileDialog(
-		"Read .ply mesh",
-		"./", 1, filterPatterns, NULL, 0);
-
-	if (filepath) {
-		printf("filepath: %s\n", filepath);
-
-		// load ply mesh
-		vgl::ReadTriMeshPly(filepath, V, N, F);
-		printf("[DONE]\n");
-		printf("(V, N, F) = (%d, %d, %d)\n", V.size(), N.size(), F.size() / 3);
-
-		C = vgl::GetNormalColors(N); // get normalmap color from vertex normal
-	}
-}
-void CameraFrustumViewerApp::GetVisiblePointCloud()
-{
-	P_visible.clear();
-
-	////////////////////////////////////////
-	// offscreen rendering to generate data
-	////////////////////////////////////////
-	int w = width / 2;
-	int h = w;
-
-	offscreenFBO->Resize(w, h);
-	offscreenFBO->DrawFBO( [&] {
-		// draw 3D scene
-		glm::mat4 proj = rendercam->GetProjMatrix();
-		glm::mat4 view = rendercam->GetViewMatrix();
-		glm::mat4 model = glm::translate(glm::mat4(1.0f), ModelPosition) * glm::mat4(ModelRotation);
-		model = glm::scale(model, glm::vec3(ModelUniScale));
-
-		glClearColor(BgColor[1].r, BgColor[1].g, BgColor[1].b, BgColor[1].a);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glEnable(GL_DEPTH_TEST);
-		drawView3D(proj, view);
-		glDisable(GL_DEPTH_TEST);
-
-		offscreenFBO->CopyDepthToBuffer();
-
-		// get visible vertex indices from mesh
-		P_visible = offscreenFBO->ConvertDepthImage2PointCloud(glm::inverse(proj));
-	});
-
-	printf("# visible points V = %d\r", P_visible.size() );
-}
-void CameraFrustumViewerApp::GetVisibleFaces()
-{
-	// clear submesh information in advance
-	F_visible.clear();
-
-	////////////////////////////////////////
-	// offscreen rendering to generate data
-	////////////////////////////////////////
-	int w = width / 2;
-	int h = w;
-
-	std::set<glm::uint> V_indices;
-
-	offscreenFBO->Resize(w, h);
-	offscreenFBO->DrawFBO([&] {
-		// draw 3D scene
-		glm::mat4 proj = rendercam->GetProjMatrix();
-		glm::mat4 view = rendercam->GetViewMatrix();
-		glm::mat4 model = glm::translate(glm::mat4(1.0f), ModelPosition) * glm::mat4(ModelRotation);
-		model = glm::scale(model, glm::vec3(ModelUniScale));
-
-		glClearColor(BgColor[1].r, BgColor[1].g, BgColor[1].b, BgColor[1].a);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glEnable(GL_DEPTH_TEST);
-		drawView3D(proj, view);
-		glDisable(GL_DEPTH_TEST);
-
-		offscreenFBO->CopyDepthToBuffer();
-
-		// get visible vertex indices from mesh
-		V_indices = offscreenFBO->GetVisibleVertexIndices(proj * view * model, V);
-	});
-
-	// extract faces which contain visible vertex ***************************** [TEMPORARY]
-	auto GetSubmeshFaceIndicesFromVertexIndices = [](
-		const std::vector<glm::uint>& original_faces,
-		const std::set<glm::uint>& v_indices, const bool strict = false)->std::set<glm::uint>
-	{
-		std::set<glm::uint> submesh_f_indices;
-
-		for (int fidx = 0; fidx < original_faces.size() / 3; fidx++) {
-			int vidx0 = original_faces[3 * fidx + 0];
-			int vidx1 = original_faces[3 * fidx + 1];
-			int vidx2 = original_faces[3 * fidx + 2];
-
-			std::set<GLuint>::iterator it0 = v_indices.find(vidx0);
-			std::set<GLuint>::iterator it1 = v_indices.find(vidx1);
-			std::set<GLuint>::iterator it2 = v_indices.find(vidx2);
-
-			// strict: all vertices should be in the set.
-			if (strict) {
-				if (it0 != v_indices.end() &&
-					it1 != v_indices.end() &&
-					it2 != v_indices.end())
-					submesh_f_indices.insert(fidx);
-			}
-			// non-strict: at least one vertex is in the set.
-			else {
-				if (it0 != v_indices.end() ||
-					it1 != v_indices.end() ||
-					it2 != v_indices.end())
-					submesh_f_indices.insert(fidx);
-			}
-		}
-
-		return submesh_f_indices;
-	};
-	std::set<glm::uint> F_indices = GetSubmeshFaceIndicesFromVertexIndices(F, V_indices);
-
-	for (auto fidx : F_indices) {
-		F_visible.push_back(F[3 * fidx + 0]);
-		F_visible.push_back(F[3 * fidx + 1]);
-		F_visible.push_back(F[3 * fidx + 2]);
-	}
-
-	printf("# visible (V,F) = (%d,%d)\r", V_indices.size(), F_visible.size());
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 // entry point

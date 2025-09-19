@@ -25,6 +25,8 @@ void SimpleDrawApp::Draw(const int width, const int height)
 ///////////////////////////////////////////////////////////////////////////////
 bool SimpleDrawApp::Init()
 {
+	TwDefine("Bar iconified=true");
+
 	// just use simple orthogonal projection for 2D drawing
 	ortho_proj = glm::ortho(-1.0f, +1.0f, -1.0f, +1.0f);
 
