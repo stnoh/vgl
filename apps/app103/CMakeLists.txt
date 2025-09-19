@@ -1,3 +1,3 @@
-﻿add_executable (example103 "SimpleDrawApp.cpp")
+﻿add_executable (app103 "SimpleDrawApp.cpp")
 
-target_link_libraries(example103 vgl)
+target_link_libraries(app103 vgl)
