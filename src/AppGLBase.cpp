@@ -75,8 +75,9 @@ AppGLBase::AppGLBase(const int width, const int height)
 	TwInit(TW_OPENGL, nullptr);
 	TwWindowSize(width, height);
 	bar = TwNewBar("Bar");
+	TwDefine("TW_HELP visible=false"); // no help as default
 	TwDefine("GLOBAL fontsize=3"); // large fontsize
-	TwDefine("Bar position='5 5' size='250 450' label='Functions' refresh=0.5 alpha=0 ");
+	TwDefine("Bar position='5 5' size='250 450' label='Functions' refresh=0.5 alpha=0 iconified=true"); // 
 
 	// set GLFW-only callbacks
 	glfwSetFramebufferSizeCallback(window, [](GLFWwindow* window, int w, int h)
