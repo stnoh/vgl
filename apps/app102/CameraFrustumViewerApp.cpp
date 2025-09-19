@@ -1,3 +1,4 @@
+#include <vgl/Util.h>
 #include "CameraFrustumViewerApp.h"
 #include <vgl/plyFileIO.h>
 #include <tinyfiledialogs.h>
@@ -81,7 +82,7 @@ void CameraFrustumViewerApp::drawView3D(glm::mat4 proj, glm::mat4 view)
 	glColor3f(1.0f, 1.0f, 0.0f);
 	glLineWidth(2.0f);
 	rendercam->SetCameraCoord([&] {
-
+		//vgl::ShowMatrix4x4(rendercam->GetProjMatrix());
 	}, true);
 }
 
@@ -174,7 +175,7 @@ int main(int argc, char** argv)
 {
 	CameraFrustumViewerApp app(1280, 640);
 
-	app.SetInternalProcess(true); // update when it is dirty
+	app.SetInternalProcess(false); // update only when it is dirty
 	app.run();
 
 	return EXIT_SUCCESS;

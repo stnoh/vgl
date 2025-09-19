@@ -15,11 +15,12 @@ public:
 
 		// just use simple orthogonal projection for 2D drawing
 		if (false) {
-			// Legacy GL
-			glMatrixMode(GL_PROJECTION); glLoadIdentity();
+			// Legacy GL style
+			glMatrixMode(GL_PROJECTION);
+			glOrtho(-1.0, +1.0, -1.0, +1.0, -1.0, +1.0);
 		}
 		else {
-			glm::mat4 ortho_proj = glm::ortho(-1.0f, +1.0f, -1.0f, +1.0f, +1.0f, -1.0f); // [CAUTION] z-near and z-far
+			glm::mat4 ortho_proj = glm::ortho(-1.0f, +1.0f, -1.0f, +1.0f, -1.0f, +1.0f);
 			vgl::ShowMatrix4x4(ortho_proj);
 			glMatrixMode(GL_PROJECTION); glLoadMatrixf(glm::value_ptr(ortho_proj));
 		}
