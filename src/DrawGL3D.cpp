@@ -17,7 +17,7 @@ void drawAxes(double length)
 	float materialR[4] = { 1.0f, 0.0f, 0.0f, 0.0f };
 	float materialG[4] = { 0.0f, 1.0f, 0.0f, 0.0f };
 	float materialB[4] = { 0.0f, 0.0f, 1.0f, 0.0f };
-	float materialW[4] = { 1.0f, 1.0f, 1.0f, 0.0f };
+	float materialW[4] = { 0.8f, 0.8f, 0.8f, 0.0f }; // default diffuse
 
 	static bool init = false;
 	static GLUquadricObj *quadratic;
@@ -62,7 +62,7 @@ void drawAxes(double length)
 
 	glPopMatrix();
 
-	// set material color to default (white)
+	// set material color to default (light gray)
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, materialW);
 }
 
@@ -332,7 +332,7 @@ void drawTriMesh(const std::vector<glm::vec3>& V, const std::vector<glm::vec3>& 
 
 
 ///////////////////////////////////////////////////////////////////////////////
-// lighting
+// lighting and material
 ///////////////////////////////////////////////////////////////////////////////
 void setLight(GLenum lightNum, glm::vec4 lightPos,
 	const glm::vec4 ambient, const glm::vec4 diffuse, const glm::vec4 specular)
@@ -343,11 +343,20 @@ void setLight(GLenum lightNum, glm::vec4 lightPos,
 	}
 
 	// configure and enable light source
-	glLightfv(lightNum, GL_POSITION, glm::value_ptr(-lightPos));
+	glLightfv(lightNum, GL_POSITION, glm::value_ptr(lightPos));
 	glLightfv(lightNum, GL_AMBIENT , glm::value_ptr(ambient));
 	glLightfv(lightNum, GL_DIFFUSE , glm::value_ptr(diffuse));
 	glLightfv(lightNum, GL_SPECULAR, glm::value_ptr(specular));
 	glEnable(lightNum);
+}
+
+void setMaterial(GLenum face, const glm::vec4 ambient, const glm::vec4 diffuse, const glm::vec4 specular, const glm::vec4 emission, const float shininess)
+{
+	glMaterialfv(face, GL_AMBIENT , glm::value_ptr(ambient));
+	glMaterialfv(face, GL_DIFFUSE , glm::value_ptr(diffuse));
+	glMaterialfv(face, GL_SPECULAR, glm::value_ptr(specular));
+	glMaterialfv(face, GL_EMISSION, glm::value_ptr(emission));
+	glMaterialf(face, GL_SHININESS, shininess);
 }
 
 

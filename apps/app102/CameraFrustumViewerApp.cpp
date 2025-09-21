@@ -48,7 +48,7 @@ void CameraFrustumViewerApp::drawView3D(glm::mat4 proj, glm::mat4 view)
 {
 	glMatrixMode(GL_PROJECTION); glLoadMatrixf(glm::value_ptr(proj));
 	glMatrixMode(GL_MODELVIEW);  glLoadMatrixf(glm::value_ptr(view));
-	vgl::setLight(GL_LIGHT0, glm::vec4(-1.0f, -1.0f, -1.0f, 0.0f)); // default light
+	vgl::setLight(GL_LIGHT0, glm::vec4(1.0f, 1.0f, 1.0f, 0.0f)); // default light
 
 	// model matrix
 	glm::mat4 model = glm::translate(glm::mat4(1.0f), ModelPosition) * glm::mat4(ModelRotation);
