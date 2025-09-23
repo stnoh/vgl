@@ -11,7 +11,8 @@ C++によるOpenGLの基本的な実装を含んでいる．
 - [glm](https://github.com/g-truc/glm)-1.0.1: GL Mathematics．OpenGLで用いられる構造体(``float4``など)の使えるライブラリ．  
 - [glew-cmake](https://github.com/Perlmint/glew-cmake)-2.2.0: GLEW の cmake 対応版．  
 - [glfw](https://github.com/glfw/glfw)-3.3.10: GLコンテキストの使用可能な基本ウィンドウライブラリ．  
-- [anttweakbar](https://github.com/tschw/AntTweakBar): OpenGL screen上に備えられる簡単なGUIライブラリ．  
+- [anttweakbar](https://github.com/stnoh/AntTweakBar): OpenGL screen上に備えられる簡単なGUIライブラリ．  
+  本来，[tschw氏のレポジトリ](https://github.com/tschw/AntTweakBar)であったが，もはや Visual Studio 2019 がダウンロードできなくなり，Visual Studio 2022 にも対応できるように小さい変更を加えたものである．  
 
 後，GLFWとは無関係なGUIダイアログや，ファイル入出力などC++14には足りない一般機能を含んでいる．  
 
@@ -35,7 +36,7 @@ C++によるOpenGLの基本的な実装を含んでいる．
 
 ## コンパイル
 
-このライブラリは基本的に Visual C++ (VS 2019) / Windows を想定して作られてあるものの，  
+このライブラリは基本的に Visual C++ ~~(VS 2019)~~ (VS 2022) / Windows を想定して作られてあるものの，  
 将来クロースコンパイル(Ubuntuなど)を支援するために CMakeLists.txt によるコンパイルを想定して開発している．  
 Visual Studio/C++ のビルドソリューションを作りたいものは，CMakeの基本的な使い方を参照されたい．  
 
