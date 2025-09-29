@@ -14,14 +14,14 @@ public:
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// just use simple orthogonal projection for 2D drawing
-		if (false) {
+		if (true) {
 			// Legacy GL style
 			glMatrixMode(GL_PROJECTION);
 			glOrtho(-1.0, +1.0, -1.0, +1.0, -1.0, +1.0);
 		}
 		else {
 			glm::mat4 ortho_proj = glm::ortho(-1.0f, +1.0f, -1.0f, +1.0f, -1.0f, +1.0f);
-			vgl::ShowMatrix4x4(ortho_proj);
+			//vgl::ShowMatrix4x4(ortho_proj);
 			glMatrixMode(GL_PROJECTION); glLoadMatrixf(glm::value_ptr(ortho_proj));
 		}
 
@@ -37,8 +37,9 @@ public:
 	// override member functions
 	bool Init()
 	{
-		TwDefine("Bar iconified=true");
-
+		glfwSetWindowTitle(window, "SimpleDrawApp");
+		TwDefine("Bar iconified=true"); // hide TwBar at initial 
+		
 		return true;
 	}
 };

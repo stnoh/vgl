@@ -1,7 +1,7 @@
 #include <vgl/Util.h>
+#include <vgl/DrawGL3D.h>
+
 #include "CameraFrustumViewerApp.h"
-#include <vgl/plyFileIO.h>
-#include <tinyfiledialogs.h>
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -92,11 +92,13 @@ void CameraFrustumViewerApp::drawView3D(glm::mat4 proj, glm::mat4 view)
 ///////////////////////////////////////////////////////////////////////////////
 bool CameraFrustumViewerApp::Init()
 {
+	glfwSetWindowTitle(window, "CameraFrustumViewerApp"); // set window title
+
 	// instantiate camera object
 	rendercam = new vgl::GLCamera();
 	rendercam->SetCameraMatrixCV({ 1.0f, 1.0f, 0.5f, 0.5f }, 1.0f, 30.0f);
 	rendercam->z_near = 0.1f;
-	rendercam->z_far  = 3.0f;
+	rendercam->z_far  = 5.0f;
 
 	resetGlobalView();
 	resetCameraView();

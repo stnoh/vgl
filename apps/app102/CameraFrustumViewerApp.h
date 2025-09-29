@@ -3,13 +3,8 @@
 
 #include <vgl/AppGLBase.h>
 
-#include <vgl/DrawGL3D.h>
-
 #include <glm/glm.hpp>
-#include <glm/ext.hpp>
-
 #include <vgl/GLCamera.h>
-#include <vgl/FBO.h>
 
 class CameraFrustumViewerApp : public AppGLBase
 {
