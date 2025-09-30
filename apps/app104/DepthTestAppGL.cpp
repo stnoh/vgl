@@ -85,6 +85,7 @@ public:
 	};
 
 	bool Init() {
+		glfwSetWindowTitle(window, "DepthTestApp");
 
 		resetGlobalView();
 
