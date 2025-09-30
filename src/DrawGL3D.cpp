@@ -81,6 +81,59 @@ void drawSphere(float radius, glm::vec4 color)
 
 
 ///////////////////////////////////////////////////////////////////////////////
+// simple primitive (GL_QUADS)
+///////////////////////////////////////////////////////////////////////////////
+void drawCube(float radius)
+{
+	glBegin(GL_QUADS);
+
+	// quad 1: "front"
+	glNormal3f( 0.0f,  0.0f, +1.0f);
+	glVertex3f(-0.5f, -0.5f, +0.5f);
+	glVertex3f(+0.5f, -0.5f, +0.5f);
+	glVertex3f(+0.5f, +0.5f, +0.5f);
+	glVertex3f(-0.5f, +0.5f, +0.5f);
+
+	// quad 2: "back"
+	glNormal3f( 0.0f,  0.0f, -1.0f);
+	glVertex3f(-0.5f, -0.5f, -0.5f);
+	glVertex3f(-0.5f, +0.5f, -0.5f);
+	glVertex3f(+0.5f, +0.5f, -0.5f);
+	glVertex3f(+0.5f, -0.5f, -0.5f);
+
+	// quad 3: "left"
+	glNormal3f(-1.0f,  0.0f,  0.0f);
+	glVertex3f(-0.5f, -0.5f, -0.5f);
+	glVertex3f(-0.5f, -0.5f, +0.5f);
+	glVertex3f(-0.5f, +0.5f, +0.5f);
+	glVertex3f(-0.5f, +0.5f, -0.5f);
+	
+	// quad 4: "right"
+	glNormal3f(+1.0f,  0.0f,  0.0f);
+	glVertex3f(+0.5f, -0.5f, -0.5f);
+	glVertex3f(+0.5f, +0.5f, -0.5f);
+	glVertex3f(+0.5f, +0.5f, +0.5f);
+	glVertex3f(+0.5f, -0.5f, +0.5f);
+
+	// quad 5: "bottom"
+	glNormal3f( 0.0f, -1.0f,  0.0f);
+	glVertex3f(-0.5f, -0.5f, -0.5f);
+	glVertex3f(+0.5f, -0.5f, -0.5f);
+	glVertex3f(+0.5f, -0.5f, +0.5f);
+	glVertex3f(-0.5f, -0.5f, +0.5f);
+
+	// quad 6: "top"
+	glNormal3f( 0.0f, +1.0f,  0.0f);
+	glVertex3f(-0.5f, +0.5f, -0.5f);
+	glVertex3f(-0.5f, +0.5f, +0.5f);
+	glVertex3f(+0.5f, +0.5f, +0.5f);
+	glVertex3f(+0.5f, +0.5f, -0.5f);
+
+	glEnd();
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
 // simple primitive (GL_LINES)
 ///////////////////////////////////////////////////////////////////////////////
 void drawGridXZ(float length, int step)

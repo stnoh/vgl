@@ -17,6 +17,9 @@ namespace vgl {
 void drawAxes(double length);
 void drawSphere(float radius, glm::vec4 color);
 
+// simple primitive (GL_QUADS)
+void drawCube(float size);
+
 // simple primitive (GL_LINES)
 void drawGridXZ(float length, int step);
 void drawAABB(glm::vec3 minAB, glm::vec3 maxAB);
