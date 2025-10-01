@@ -28,6 +28,14 @@ Type: AntTweakBarの代わりとして使えるかも知れない．
 - [△] 情報がちょっと足りない  
 
 
+## [libgd](https://github.com/libgd/libgd)
+
+Type: image loader
+
+- [✔] Security-safe image loading library  
+- [△] 画像ライブラリにしてはちょっと大き目 (30MB)  
+
+
 ### [tinyply](https://github.com/ddiakopoulos/tinyply)
 
 Type: ply mesh importer  
@@ -42,3 +50,13 @@ Type: 3D asset (mesh) importer
 
 - [✔] 多様なメッシュ形式に対応可能なインポーター．  
 - [△] 重すぎる．授業程度でメッシュ形式を扱っても仕方ないので扱わなくてもよさそうな．  
+
+
+
+## Linux でのビルド
+
+Linux (Ubuntu) でビルドを試したものの，以下の二つの問題が発見された．  
+
+1. [anttweakbar]のビルドが上手くいかない．個別の[anttweakbar]だけビルドしたら起きない問題なので，どこかオプションが間違っているかも知れない．  
+2. GLU.h の問題．パッケージをインストールしたものの header ファイルが探せない問題なので，何か Linux 専用のパス設定が必要かも知れない．  
+
