@@ -91,12 +91,15 @@ target_link_libraries(vgl
   glfw
   AntTweakBar
   tinyfd
+  $<$<PLATFORM_ID:Linux>:X11> ## add X11 subsystem for Linux
 )
 
 
-## suppress some known warnings
+## suppress some known warnings (for Windows)
+if(WIN32)
 target_compile_options(AntTweakBar PRIVATE "/wd4068") ## AntTweakBar-related warnings
 target_compile_options(AntTweakBar PRIVATE "/wd4302") ## AntTweakBar-related warnings
+endif()
 
 
 ##############################################################################

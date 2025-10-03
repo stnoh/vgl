@@ -2,6 +2,7 @@
 Helper for drawing simple but general 3D objects with GL
 Author: Seung-Tak Noh (seungtak.noh [at] gmail.com)
 ******************************************************************************/
+#include <stdio.h>
 #include <vgl/DrawGL3D.h>
 #include <GL/glu.h>
 
