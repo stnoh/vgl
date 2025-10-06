@@ -28,7 +28,7 @@ void main()
 	vec3 v = vec3(ModelView * vec4(vPosition, 1.0));
 	vec3 N = normalize(NormalMatrix * vNormal);
 	vec3 L = normalize(LightPosition.xyz - LightPosition.w * v);
-	vec3 R = reflect(-L, N);
+	vec3 R = normalize(reflect(-L, N));
 	float NdotL = max(dot(N,L), 0.0);
 
 	vec4 ambient  = AmbientProduct;
@@ -138,6 +138,8 @@ public:
 
 	bool Init()
 	{
+		glfwSetWindowTitle(window, "SimpleShaderApp");
+
 		// UI: AntTweakBar
 		TwAddVarRW(bar, "Light_dir", TwType::TW_TYPE_DIR3F, &L_position, "group='Global' label='Light_dir' open");
 
