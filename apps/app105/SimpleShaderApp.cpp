@@ -170,8 +170,8 @@ public:
 	vgl::IcoSphere icosphere;
 
 private:
-	bool use_shader = false;
-	bool show_wireframe = true;
+	bool use_shader = true;
+	bool show_wireframe = false;
 
 	// light properties
 	glm::vec4 L_position = glm::vec4(1, 1, 1, 0);
