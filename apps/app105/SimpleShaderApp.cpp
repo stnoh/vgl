@@ -84,24 +84,24 @@ public:
 
 		if (use_shader)
 		{
-			shader->DrawShader([&](){
+			shader.DrawShader([&](){
 				GLint loc;
-				loc = shader->GetUniformLocation("Projection");
+				loc = shader.GetUniformLocation("Projection");
 				glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(proj));
-				loc = shader->GetUniformLocation("ModelView");
+				loc = shader.GetUniformLocation("ModelView");
 				glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(view));
 
-				loc = shader->GetUniformLocation("LightPosition");
+				loc = shader.GetUniformLocation("LightPosition");
 				glUniform4fv(loc, 1, glm::value_ptr(L_position));
 
-				loc = shader->GetUniformLocation("AmbientProduct");
+				loc = shader.GetUniformLocation("AmbientProduct");
 				glUniform4fv(loc, 1, glm::value_ptr(L_ambient * M_ambient));
-				loc = shader->GetUniformLocation("DiffuseProduct");
+				loc = shader.GetUniformLocation("DiffuseProduct");
 				glUniform4fv(loc, 1, glm::value_ptr(L_diffuse * M_diffuse));
-				loc = shader->GetUniformLocation("SpecularProduct");
+				loc = shader.GetUniformLocation("SpecularProduct");
 				glUniform4fv(loc, 1, glm::value_ptr(L_specular * M_specular));
 
-				loc = shader->GetUniformLocation("SpecularShininess");
+				loc = shader.GetUniformLocation("SpecularShininess");
 				glUniform1f(loc, M_shininess);
 
 				// set vertices with normals
@@ -147,24 +147,15 @@ public:
 		TwAddVarRW(bar, "show_wire", TwType::TW_TYPE_BOOLCPP, &show_wireframe, "group='Global' label='show_wire'");
 
 		// prepare icosphere to test rendering
-		icosphere = vgl::IcoSphere(2);
+		icosphere = vgl::IcoSphere(3);
 
 		// prepare shader
-		shader = new vgl::GLShader();
-		shader->Compile(vertexShader  , vgl::SHADER_TYPE::VERTEX);
-		shader->Compile(fragmentShader, vgl::SHADER_TYPE::FRAGMENT);
-		shader->Link();
+		shader = vgl::GLShader();
+		shader.Compile(vertexShader  , vgl::SHADER_TYPE::VERTEX);
+		shader.Compile(fragmentShader, vgl::SHADER_TYPE::FRAGMENT);
+		shader.Link();
 
 		return true;
-	}
-
-	void End()
-	{
-		if (NULL != shader)
-		{
-			delete shader;
-			shader = NULL;
-		}
 	}
 
 	vgl::IcoSphere icosphere;
@@ -185,7 +176,7 @@ private:
 	glm::vec4 M_specular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 	float M_shininess = 32.0f;
 
-	vgl::GLShader* shader = nullptr;
+	vgl::GLShader shader;
 };
 
 
