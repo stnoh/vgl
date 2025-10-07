@@ -114,6 +114,10 @@ public:
 			});
 		}
 		else {
+
+			glShadeModel(GL_SMOOTH); // default
+			if (use_flat) glShadeModel(GL_FLAT);
+
 			glEnable(GL_LIGHTING);
 			vgl::setLight(GL_LIGHT0, L_position, L_ambient, L_diffuse, L_specular);
 			vgl::setMaterial(GL_FRONT_AND_BACK, M_ambient, M_diffuse, M_specular, glm::vec4(0.0f), M_shininess);
@@ -143,6 +147,7 @@ public:
 		// UI: AntTweakBar
 		TwAddVarRW(bar, "Light_dir", TwType::TW_TYPE_DIR3F, &L_position, "group='Global' label='Light_dir' open");
 
+		TwAddVarRW(bar, "use_flat", TwType::TW_TYPE_BOOLCPP, &use_flat, "group='Global' label='use_flat'");
 		TwAddVarRW(bar, "use_shader", TwType::TW_TYPE_BOOLCPP, &use_shader, "group='Global' label='use_shader'");
 		TwAddVarRW(bar, "show_wire", TwType::TW_TYPE_BOOLCPP, &show_wireframe, "group='Global' label='show_wire'");
 
@@ -161,6 +166,7 @@ public:
 	vgl::IcoSphere icosphere;
 
 private:
+	bool use_flat = false;
 	bool use_shader = true;
 	bool show_wireframe = false;
 
