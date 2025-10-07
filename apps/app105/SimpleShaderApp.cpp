@@ -152,7 +152,7 @@ public:
 		TwAddVarRW(bar, "show_wire", TwType::TW_TYPE_BOOLCPP, &show_wireframe, "group='Global' label='show_wire'");
 
 		// prepare icosphere to test rendering
-		icosphere = vgl::IcoSphere(3);
+		icosphere = vgl::IcoSphere(2);
 
 		// prepare shader
 		shader = vgl::GLShader();
