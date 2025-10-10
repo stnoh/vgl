@@ -111,4 +111,6 @@ add_subdirectory(apps/app103)
 add_subdirectory(apps/app104)
 add_subdirectory(apps/app105)
 add_subdirectory(apps/app106)
+add_subdirectory(apps/app107)
+
 add_subdirectory(apps/app401)
