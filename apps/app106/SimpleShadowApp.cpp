@@ -8,7 +8,7 @@
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
 
-const char* vertexShader = R"(
+const char* vertShader = R"(
 #version 330 
 layout(location=0) in vec3 vPosition;
 layout(location=1) in vec3 vNormal;
@@ -65,7 +65,7 @@ void main()
 }
 )";
 
-const char* fragmentShader = R"(
+const char* fragShader = R"(
 #version 330 
 uniform sampler2D shadowMap;
 
@@ -86,7 +86,6 @@ float ShadowCalculation(vec4 fragPosLight)
     float closestDepth = texture(shadowMap, projCoords.xy).r;
     float currentDepth = projCoords.z;
 
-    // Bias (can be uniform or computed from interpolated normal)
     float bias = 0.005;
 
     return (currentDepth - bias) > closestDepth ? 1.0 : 0.0;
@@ -110,7 +109,7 @@ public:
 	void DrawScene(glm::mat4 proj, glm::mat4 view, bool pass_one, glm::mat4 light_space)
 	{
 		glClearColor(0.2f, 0.3f, 0.5f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // [IMPORTANT]
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // [IMPORTANT] clear in advance
 
 		glMatrixMode(GL_PROJECTION); glLoadMatrixf(glm::value_ptr(proj));
 		glMatrixMode(GL_MODELVIEW);  glLoadMatrixf(glm::value_ptr(view));
@@ -129,7 +128,6 @@ public:
 		vgl::setMaterial(GL_FRONT_AND_BACK, glm::vec4(0.0f), M_diffuse, glm::vec4(0.0f), glm::vec4(0.0f), 0.0f);
 
 		// sphere: simple drawing
-		if (true)
 		{
 			const float tau = (1.0f + sqrtf(5.0f)) / 2.0f;
 
@@ -144,7 +142,6 @@ public:
 		}
 
 		// floor: "shadow" in the 2nd pass
-		if (true)
 		{
 			glm::mat4 offset = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f));
 			glm::mat4 model = offset;
@@ -212,7 +209,7 @@ public:
 		glm::mat4 view = glm::translate(glm::mat4(1.0f), -GlobalViewPosition);
 		view = view * glm::mat4_cast(GlobalViewRotation);
 
-		// 1st pass:
+		// 1st pass: render from "light"
 		glm::mat4 proj_light = glm::perspective(2.0f * glm::radians(spot_cutoff), 1.0f, 0.1f, 100.0f);
 		glm::mat4 view_light = glm::lookAt(glm::vec3(L_position), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // [CAUTION]
 
@@ -221,10 +218,10 @@ public:
 			DrawScene(proj_light, view_light, true, NULL);
 		});
 
-		// 2nd pass:
-		glViewport(0, 0, width, height); // reset viewport since fbo set it's own viewport
+		// 2nd pass: render from "camera"
+		glViewport(0, 0, width, height); // reset viewport since fbo has it's own viewport
 		DrawScene(proj, view, false, proj_light * view_light); // shader version
-		//DrawScene(proj, view, false, NULL, NULL); // legacy pipeline (no shadow!)
+		//DrawScene(proj, view, false, NULL); // legacy pipeline (no shadow!)
 
 		// additionally, draw lines on the floor
 		glColor3f(0.0f, 0.0f, 0.0f);
@@ -290,8 +287,8 @@ public:
 
 		// prepare shader
 		shader = vgl::GLShader();
-		shader.Compile(vertexShader, vgl::SHADER_TYPE::VERTEX);
-		shader.Compile(fragmentShader, vgl::SHADER_TYPE::FRAGMENT);
+		shader.Compile(vertShader, vgl::SHADER_TYPE::VERTEX);
+		shader.Compile(fragShader, vgl::SHADER_TYPE::FRAGMENT);
 		shader.Link();
 
 		// offscreen renderer
