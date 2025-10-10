@@ -44,6 +44,18 @@ FBO::~FBO()
 {
 	Disable(); // deallocate before removing
 
+	// release buffers if exist
+	if (nullptr != buffer_color)
+	{
+		delete buffer_color;
+		buffer_color = nullptr;
+	}
+	if (nullptr != buffer_depth)
+	{
+		delete buffer_depth;
+		buffer_depth = nullptr;
+	}
+
 	// release render buffers & frame buffer
 	glDeleteRenderbuffers(1, &rboColor);
 	glDeleteRenderbuffers(1, &rboDepth);
@@ -56,26 +68,14 @@ FBO::~FBO()
 ///////////////////////////////////////////////////////////////////////////////
 void FBO::Enable()
 {
-	// enable to use framebuffer
+	// just enable to use framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 	glViewport(0, 0, width, height);
 }
 void FBO::Disable()
 {
-	// disable framebuffer
+	// just disable framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-	// release buffers if exist
-	if (nullptr != buffer_color)
-	{
-		delete buffer_color;
-		buffer_color = nullptr;
-	}
-	if (nullptr != buffer_depth)
-	{
-		delete buffer_depth;
-		buffer_depth = nullptr;
-	}
 }
 
 bool FBO::Resize(const int width, const int height)
