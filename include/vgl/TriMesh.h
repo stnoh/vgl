@@ -2,6 +2,9 @@
 Utility functions for 3D triangle mesh with GL
 Author: Seung-Tak Noh (seungtak.noh [at] gmail.com)
 ******************************************************************************/
+#ifndef TRI_MESH_VGL
+#define TRI_MESH_VGL
+
 #include <map>
 #include <set>
 #include <vector>
@@ -40,7 +43,19 @@ private:
 	void subdivide();
 };
 
+class PlaneXY
+{
+public:
+	PlaneXY(int subdiv = 10, float scale = 1.0f);
+
+	std::vector<glm::vec3> vertices;
+	std::vector<glm::vec3> normals;
+	std::vector<glm::uint> faces;
+};
+
 std::pair<std::vector<glm::vec3>, std::map<glm::uint, std::set<glm::uint>>> ComputeFaceNormals(std::vector<glm::vec3> vertices, std::vector<glm::uint> faces);
 std::vector<glm::vec3> ComputeVertexNormals(std::vector<glm::vec3> vertices, std::vector<glm::uint> faces);
 
 }
+
+#endif
