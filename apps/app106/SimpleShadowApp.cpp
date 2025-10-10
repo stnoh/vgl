@@ -24,9 +24,9 @@ uniform float SpotExponent;
 
 uniform vec4 DiffuseProduct;
 
+uniform mat4 LightSpaceMatrix;
+
 out vec4 vertexColor;
-out vec3 FragPos;
-out vec3 Normal;
 out vec4 FragPosLightSpace;
 
 void main()
@@ -48,7 +48,7 @@ void main()
     float spotEffect = dot(normalize(-SpotDirection), L);
     if(spotEffect > SpotCutoff)
     {
-        attenuation *= pow(spotEffect, 1.5 * SpotExponent); // 1.5 is just an ad-hoc value
+        attenuation *= pow(spotEffect, SpotExponent);
     }
     else
     {
@@ -59,18 +59,46 @@ void main()
 
 	// output
 	vertexColor = diffuse;
+	FragPosLightSpace = LightSpaceMatrix * vec4(v, 1.0);
+
 	gl_Position = Projection * View * vec4(v, 1.0); // clipped position
 }
 )";
 
 const char* fragmentShader = R"(
 #version 330 
+uniform sampler2D shadowMap;
+
 in vec4 vertexColor;
+in vec4 FragPosLightSpace;
+
 out vec4 fragColor;
+
+float ShadowCalculation(vec4 fragPosLight)
+{
+    vec3 projCoords = fragPosLight.xyz / fragPosLight.w;
+    projCoords = projCoords * 0.5 + 0.5;
+
+	// out of depthmap area
+    if(projCoords.z > 1.0)
+        return 0.0;
+	
+    float closestDepth = texture(shadowMap, projCoords.xy).r;
+    float currentDepth = projCoords.z;
+
+    // Bias (can be uniform or computed from interpolated normal)
+    float bias = 0.005;
+
+    return (currentDepth - bias) > closestDepth ? 1.0 : 0.0;
+}
 
 void main()
 {
-    fragColor = vertexColor;
+    float shadow = ShadowCalculation(FragPosLightSpace);
+
+	vec3 vertexColorWithShadow = vec3(vertexColor);
+
+    fragColor = vec4(vertexColorWithShadow * (1.0 - shadow), 1.0);
 }
 )";
 
@@ -79,9 +107,11 @@ class SimpleShadowApp : public AppGLBase
 public:
 	SimpleShadowApp(const int width, const int height) : AppGLBase(width, height) {};
 
-	void DrawScene(glm::mat4 proj, glm::mat4 view,
-		GLuint* rboDepth, glm::mat4 proj_light, glm::mat4 view_light)
+	void DrawScene(glm::mat4 proj, glm::mat4 view, bool pass_one, glm::mat4 light_space)
 	{
+		glClearColor(0.2f, 0.3f, 0.5f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // [IMPORTANT]
+
 		glMatrixMode(GL_PROJECTION); glLoadMatrixf(glm::value_ptr(proj));
 		glMatrixMode(GL_MODELVIEW);  glLoadMatrixf(glm::value_ptr(view));
 
@@ -90,17 +120,10 @@ public:
 
 		// additional properties for spotlight
 		glm::vec3 spot_dir = -glm::normalize(glm::vec3(L_position));
-		/*
-		glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 0.0f);
-		glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.0f);
-		glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 1.0f);
-		*/
 
-		//*
 		glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, glm::value_ptr(spot_dir));
 		glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, spot_cutoff);
 		glLightf(GL_LIGHT0, GL_SPOT_EXPONENT, spot_exponent);
-		//*/
 
 		// set material
 		vgl::setMaterial(GL_FRONT_AND_BACK, glm::vec4(0.0f), M_diffuse, glm::vec4(0.0f), glm::vec4(0.0f), 0.0f);
@@ -110,8 +133,8 @@ public:
 		{
 			const float tau = (1.0f + sqrtf(5.0f)) / 2.0f;
 
-			glm::mat4 scale = glm::scale(glm::mat4(1.0), glm::vec3(1.0f / tau));
-			glm::mat4 offset = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.925f, 0.0f));
+			glm::mat4 scale = glm::scale(glm::mat4(1.0), 0.5f * glm::vec3(1.0f / tau));
+			glm::mat4 offset = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.925f * 0.5f, 0.0f));
 			glm::mat4 model = offset * scale;
 
 			glPushMatrix();
@@ -120,51 +143,61 @@ public:
 			glPopMatrix();
 		}
 
-		// floor plane: "shadow" in the 2nd pass
+		// floor: "shadow" in the 2nd pass
 		if (true)
 		{
 			glm::mat4 offset = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f));
 			glm::mat4 model = offset;
 
-			if (nullptr != rboDepth) {
-				shader.Enable();
-
-				GLint loc;
-				loc = shader.GetUniformLocation("Projection");
-				glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(proj));
-				loc = shader.GetUniformLocation("View");
-				glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(view));
-				loc = shader.GetUniformLocation("Model");
-				glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(model));
-
-				loc = shader.GetUniformLocation("LightPosition");
-				glUniform4fv(loc, 1, glm::value_ptr(L_position));
-
-				loc = shader.GetUniformLocation("SpotDirection");
-				glUniform3fv(loc, 1, glm::value_ptr(spot_dir));
-
-				loc = shader.GetUniformLocation("SpotCutoff");
-				glUniform1f(loc, glm::radians(spot_cutoff));
-				loc = shader.GetUniformLocation("SpotExponent");
-				glUniform1f(loc, spot_exponent);
-
-				loc = shader.GetUniformLocation("DiffuseProduct");
-				glUniform4fv(loc, 1, glm::value_ptr(L_diffuse * M_diffuse));
-
-				// set vertices with normals
-				glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, &vertices[0]);
-				glEnableVertexAttribArray(0);
-				glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, &normals[0]);
-				glEnableVertexAttribArray(1);
+			if (pass_one)
+			{
+				vgl::drawTriMesh(vertices, normals, faces);
 			}
+			else {
+				shader.DrawShader([&] {
+					GLint loc;
+					loc = shader.GetUniformLocation("Projection");
+					glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(proj));
+					loc = shader.GetUniformLocation("View");
+					glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(view));
+					loc = shader.GetUniformLocation("Model");
+					glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(model));
 
-			vgl::drawTriMesh(vertices, normals, faces);
+					loc = shader.GetUniformLocation("LightPosition");
+					glUniform4fv(loc, 1, glm::value_ptr(L_position));
 
-			if (nullptr != rboDepth) {
-				glDisableVertexAttribArray(1);
-				glDisableVertexAttribArray(0);
+					loc = shader.GetUniformLocation("SpotDirection");
+					glUniform3fv(loc, 1, glm::value_ptr(spot_dir));
 
-				shader.Disable();
+					loc = shader.GetUniformLocation("SpotCutoff");
+					glUniform1f(loc, glm::cos(glm::radians(spot_cutoff)));
+					loc = shader.GetUniformLocation("SpotExponent");
+					glUniform1f(loc, spot_exponent);
+
+					loc = shader.GetUniformLocation("DiffuseProduct");
+					glUniform4fv(loc, 1, glm::value_ptr(L_diffuse * M_diffuse));
+
+					loc = shader.GetUniformLocation("LightSpaceMatrix");
+					glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(light_space));
+
+					loc = shader.GetUniformLocation("shadowMap");
+					if (-1 != loc) {
+						glActiveTexture(GL_TEXTURE0 + 0);
+						glBindTexture(GL_TEXTURE_2D, depthMap);
+						glUniform1i(loc, 0);
+					}
+
+					// set vertices with normals
+					glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, &vertices[0]);
+					glEnableVertexAttribArray(0);
+					glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, &normals[0]);
+					glEnableVertexAttribArray(1);
+
+					vgl::drawTriMesh(vertices, normals, faces);
+
+					glDisableVertexAttribArray(1);
+					glDisableVertexAttribArray(0);
+				});
 			}
 		}
 
@@ -175,25 +208,23 @@ public:
 	// mandatory callback
 	void Draw(const int width, const int height)
 	{
-		glClearColor(0.2f, 0.3f, 0.5f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 		glm::mat4 proj = glm::perspective(glm::radians(53.1301f), width / (float)height, 0.1f, 100.0f);
 		glm::mat4 view = glm::translate(glm::mat4(1.0f), -GlobalViewPosition);
 		view = view * glm::mat4_cast(GlobalViewRotation);
 
 		// 1st pass:
-		glm::mat4 proj_light = glm::perspective(glm::radians(spot_cutoff), 1.0f, 0.1f, 100.0f);
-		glm::mat4 view_light = glm::lookAt(glm::vec3(L_position), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		glm::mat4 proj_light = glm::perspective(2.0f * glm::radians(spot_cutoff), 1.0f, 0.1f, 100.0f);
+		glm::mat4 view_light = glm::lookAt(glm::vec3(L_position), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // [CAUTION]
 
-		fbo->Enable();
-		DrawScene(proj_light, view_light, NULL, NULL, NULL);
-		fbo->Disable();
+		// texture for "depth"
+		fbo->DrawFBO([&] {
+			DrawScene(proj_light, view_light, true, NULL);
+		});
 
 		// 2nd pass:
 		glViewport(0, 0, width, height); // reset viewport since fbo set it's own viewport
-		DrawScene(proj, view, &fbo->rboDepth, proj_light, view_light); // shader version
-		//DrawScene(proj, view, nullptr, NULL, NULL); // legacy pipeline
+		DrawScene(proj, view, false, proj_light * view_light); // shader version
+		//DrawScene(proj, view, false, NULL, NULL); // legacy pipeline (no shadow!)
 
 		// additionally, draw lines on the floor
 		glColor3f(0.0f, 0.0f, 0.0f);
@@ -216,9 +247,9 @@ public:
 		TwAddVarRW(bar, "Global-posZ", TwType::TW_TYPE_FLOAT, &GlobalViewPosition.z, "group='Global' label='posZ' step=0.01");
 #endif
 		// UI: AntTweakBar
-		TwAddVarRW(bar, "Light_dir", TwType::TW_TYPE_DIR3F, &L_position, "group='Global' label='Light_dir' open");
+		TwAddVarRW(bar, "Light_pos", TwType::TW_TYPE_DIR3F, &L_position, "group='Global' label='Light_pos' open");
 
-		TwAddVarRW(bar, "cutoff", TwType::TW_TYPE_FLOAT, &spot_cutoff, "group='Global' label='cutoff' min=1 max=90 ");
+		TwAddVarRW(bar, "cutoff", TwType::TW_TYPE_FLOAT, &spot_cutoff, "group='Global' label='cutoff' min=30 max=60 ");
 		TwAddVarRW(bar, "exponent", TwType::TW_TYPE_FLOAT, &spot_exponent, "group='Global' label='exponent' min=0 max=20 ");
 
 		// enable hidden surface removal frags
@@ -228,7 +259,7 @@ public:
 		// prepare more smooth icosphere
 		icosphere = vgl::IcoSphere(4);
 
-		// prepare very simple mesh for floorplane
+		// prepare very simple mesh for floor
 		const float x_scale = 10.0f;
 		const float z_scale = 10.0f;
 
@@ -263,8 +294,26 @@ public:
 		shader.Compile(fragmentShader, vgl::SHADER_TYPE::FRAGMENT);
 		shader.Link();
 
-		// set framebuffer object wrapper
-		fbo = new vgl::FBO(1024, 1024);
+		// offscreen renderer
+		const int shadow_width  = 1024;
+		const int shadow_height = 1024;
+		fbo = new vgl::FBO(shadow_width, shadow_height); // shadow map size
+		fbo->Enable();
+
+		// create depth map as 2D texture
+		glGenTextures(1, &depthMap);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, shadow_width, shadow_height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+		float borderColor[] = { 1.0, 1.0, 1.0, 1.0 };
+		glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+
+		// set texture as a rendering target of FBO
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+		fbo->Disable();
 
 		return true;
 	}
@@ -285,14 +334,15 @@ private:
 	std::vector<glm::uint> faces;
 
 	vgl::FBO *fbo = nullptr;
+	GLuint depthMap = 0;
 
 	// light properties
 	glm::vec4 L_position = glm::vec4(0, 3, 0.1, 1); // as point light
 	glm::vec4 L_diffuse  = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
 	// additional properties for spotlight
-	float spot_cutoff = 45.0f;
-	float spot_exponent = 8.0f;
+	float spot_cutoff = 30.0f;
+	float spot_exponent = 12.0f;
 
 	// material properties
 	glm::vec4 M_diffuse  = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -306,7 +356,6 @@ private:
 	void resetGlobalView() {
 		GlobalViewPosition = glm::vec3(0.0f, 1.0f, 4.0f);
 		GlobalViewRotation = glm::quat(glm::radians(glm::vec3(45.0f, -37.5f, -30.0f)));
-		//GlobalViewRotation = glm::quat(glm::radians(glm::vec3(0.0f, 0.0f, 0.0f)));
 	}
 };
 
