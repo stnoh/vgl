@@ -48,11 +48,11 @@ public:
 		glm::mat4 ProjViewModel, const std::vector<glm::vec3>& model_verts,
 		const float threshold = 5e-3);
 
+private:
 	GLuint fbo;
 	GLuint rboColor;
 	GLuint rboDepth;
 
-private:
 	GLubyte* buffer_color = nullptr;
 	GLfloat* buffer_depth = nullptr;
 
