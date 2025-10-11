@@ -9,21 +9,21 @@
 #include <glm/ext.hpp>
 
 const char* vertShader = R"(
-#version 330 
+#version 330
 layout(location=0) in vec3 vPosition;
 layout(location=1) in vec3 vNormal;
 
 uniform mat4 Projection;
-uniform mat4 Model;
 uniform mat4 View;
+uniform mat4 Model;
+
 uniform vec4 LightPosition;
 
-uniform vec3 SpotDirection;
+uniform vec3  SpotDirection;
 uniform float SpotCutoff;
 uniform float SpotExponent;
 
 uniform vec4 DiffuseProduct;
-
 uniform mat4 LightSpaceMatrix;
 
 out vec4 vertexColor;
@@ -42,23 +42,12 @@ void main()
 	vec3 R = normalize(reflect(-L, N));
 	float NdotL = max(dot(N,L), 0.0);
 
-	float attenuation = 1.0;
-	//attenuation = 1.0 / (d * d); // quadratic attenuation
-
+	// only available in the spot area
     float spotEffect = dot(normalize(-SpotDirection), L);
-    if(spotEffect > SpotCutoff)
-    {
-        attenuation *= pow(spotEffect, SpotExponent);
-    }
-    else
-    {
-        attenuation = 0.0; // out of spot area
-    }
-
-	vec4 diffuse  = DiffuseProduct * NdotL * attenuation;
+	float attenuation = (spotEffect > SpotCutoff) ? pow(spotEffect, SpotExponent) : 0.0;
 
 	// output
-	vertexColor = diffuse;
+	vertexColor = DiffuseProduct * NdotL * attenuation;
 	FragPosLightSpace = LightSpaceMatrix * vec4(v, 1.0);
 
 	gl_Position = Projection * View * vec4(v, 1.0); // clipped position
@@ -66,7 +55,7 @@ void main()
 )";
 
 const char* fragShader = R"(
-#version 330 
+#version 330
 uniform sampler2D shadowMap;
 
 in vec4 vertexColor;
@@ -85,18 +74,14 @@ float ShadowCalculation(vec4 fragPosLight)
 	
     float closestDepth = texture(shadowMap, projCoords.xy).r;
     float currentDepth = projCoords.z;
-
     float bias = 0.005;
-
-    return (currentDepth - bias) > closestDepth ? 1.0 : 0.0;
+    return abs(currentDepth - closestDepth ) > bias? 1.0 : 0.0;
 }
 
 void main()
 {
     float shadow = ShadowCalculation(FragPosLightSpace);
-
 	vec3 vertexColorWithShadow = vec3(vertexColor);
-
     fragColor = vec4(vertexColorWithShadow * (1.0 - shadow), 1.0);
 }
 )";
@@ -131,8 +116,8 @@ public:
 		{
 			const float tau = (1.0f + sqrtf(5.0f)) / 2.0f;
 
-			glm::mat4 scale = glm::scale(glm::mat4(1.0), 0.5f * glm::vec3(1.0f / tau));
-			glm::mat4 offset = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.925f * 0.5f, 0.0f));
+			glm::mat4 scale = glm::scale(glm::mat4(1.0), 0.5f * glm::vec3(1.0f));
+			glm::mat4 offset = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.5f, 0.0f));
 			glm::mat4 model = offset * scale;
 
 			glPushMatrix();
@@ -143,12 +128,14 @@ public:
 
 		// floor: "shadow" in the 2nd pass
 		{
-			glm::mat4 offset = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f));
-			glm::mat4 model = offset;
+			glm::mat4 model = glm::mat4_cast(glm::quat(glm::radians(glm::vec3(-90.0f, 0.0f, 0.0f))));;
+
+			glPushMatrix();
+			glMultMatrixf(glm::value_ptr(model));
 
 			if (pass_one)
 			{
-				vgl::drawTriMesh(vertices, normals, faces);
+				vgl::drawTriMesh(plane_xy.vertices, plane_xy.normals, plane_xy.faces);
 			}
 			else {
 				shader.DrawShader([&] {
@@ -185,17 +172,19 @@ public:
 					}
 
 					// set vertices with normals
-					glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, &vertices[0]);
+					glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, &plane_xy.vertices[0]);
 					glEnableVertexAttribArray(0);
-					glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, &normals[0]);
+					glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, &plane_xy.normals[0]);
 					glEnableVertexAttribArray(1);
 
-					vgl::drawTriMesh(vertices, normals, faces);
+					vgl::drawTriMesh(plane_xy.vertices, plane_xy.normals, plane_xy.faces);
 
 					glDisableVertexAttribArray(1);
 					glDisableVertexAttribArray(0);
 				});
 			}
+
+			glPopMatrix();
 		}
 
 		glDisable(GL_LIGHT0);
@@ -210,8 +199,8 @@ public:
 		view = view * glm::mat4_cast(GlobalViewRotation);
 
 		// 1st pass: render from "light"
-		glm::mat4 proj_light = glm::perspective(2.0f * glm::radians(spot_cutoff), 1.0f, 0.1f, 100.0f);
-		glm::mat4 view_light = glm::lookAt(glm::vec3(L_position), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // [CAUTION]
+		glm::mat4 proj_light = glm::perspective(2.0f * glm::radians(spot_cutoff), 1.0f, 0.1f, 100.0f); // [CAUTION] twice of cutoff angle
+		glm::mat4 view_light = glm::lookAt(glm::vec3(L_position), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // [CAUTION] buggy on "up" vector
 
 		// texture for "depth"
 		fbo->DrawFBO([&] {
@@ -243,9 +232,7 @@ public:
 		TwAddVarRW(bar, "Global-posY", TwType::TW_TYPE_FLOAT, &GlobalViewPosition.y, "group='Global' label='posY' step=0.01");
 		TwAddVarRW(bar, "Global-posZ", TwType::TW_TYPE_FLOAT, &GlobalViewPosition.z, "group='Global' label='posZ' step=0.01");
 #endif
-		// UI: AntTweakBar
 		TwAddVarRW(bar, "Light_pos", TwType::TW_TYPE_DIR3F, &L_position, "group='Global' label='Light_pos' open");
-
 		TwAddVarRW(bar, "cutoff", TwType::TW_TYPE_FLOAT, &spot_cutoff, "group='Global' label='cutoff' min=30 max=60 ");
 		TwAddVarRW(bar, "exponent", TwType::TW_TYPE_FLOAT, &spot_exponent, "group='Global' label='exponent' min=0 max=20 ");
 
@@ -254,36 +241,10 @@ public:
 		glEnable(GL_DEPTH_TEST);
 
 		// prepare more smooth icosphere
-		icosphere = vgl::IcoSphere(4);
+		icosphere = vgl::IcoSphere(4, 1.0f); // set as unit size (1.0)
 
 		// prepare very simple mesh for floor
-		const float x_scale = 10.0f;
-		const float z_scale = 10.0f;
-
-		const int subdiv = 100;
-		int cnt = 0;
-		for (int j = 0; j < subdiv; j++)
-		for (int i = 0; i < subdiv; i++)
-		{
-			float x0 = x_scale * ( (i + 0) / (float)subdiv - 0.5f);
-			float x1 = x_scale * ( (i + 1) / (float)subdiv - 0.5f);
-			float z0 = z_scale * ( (j + 0) / (float)subdiv - 0.5f);
-			float z1 = z_scale * ( (j + 1) / (float)subdiv - 0.5f);
-
-			vertices.push_back(glm::vec3(x0, 0.0f, z0));
-			vertices.push_back(glm::vec3(x0, 0.0f, z1));
-			vertices.push_back(glm::vec3(x1, 0.0f, z1));
-			vertices.push_back(glm::vec3(x1, 0.0f, z0));
-
-			normals.push_back(glm::vec3(0.0f, 1.0f, 0.0f));
-			normals.push_back(glm::vec3(0.0f, 1.0f, 0.0f));
-			normals.push_back(glm::vec3(0.0f, 1.0f, 0.0f));
-			normals.push_back(glm::vec3(0.0f, 1.0f, 0.0f));
-
-			faces.push_back(4 * cnt); faces.push_back(4 * cnt + 1); faces.push_back(4 * cnt + 2);
-			faces.push_back(4 * cnt); faces.push_back(4 * cnt + 2); faces.push_back(4 * cnt + 3);
-			cnt++;
-		}
+		plane_xy = vgl::PlaneXY(100, 10.0f);
 
 		// prepare shader
 		shader = vgl::GLShader();
@@ -325,10 +286,7 @@ public:
 
 private:
 	vgl::IcoSphere icosphere;
-
-	std::vector<glm::vec3> vertices;
-	std::vector<glm::vec3> normals;
-	std::vector<glm::uint> faces;
+	vgl::PlaneXY plane_xy;
 
 	vgl::FBO *fbo = nullptr;
 	GLuint depthMap = 0;
@@ -351,8 +309,8 @@ private:
 	glm::quat GlobalViewRotation;
 	glm::vec3 GlobalViewPosition;
 	void resetGlobalView() {
-		GlobalViewPosition = glm::vec3(0.0f, 1.0f, 4.0f);
-		GlobalViewRotation = glm::quat(glm::radians(glm::vec3(45.0f, -37.5f, -30.0f)));
+		GlobalViewPosition = glm::vec3(0.0f, 0.0f, 4.0f);
+		GlobalViewRotation = glm::quat(glm::radians(glm::vec3(45.0f, 0.0f, 0.0f)));
 	}
 };
 
