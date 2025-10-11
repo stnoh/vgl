@@ -51,9 +51,7 @@ void main()
 	vec3 L = normalize(LightPosition.xyz);
 	float NdotL = max(dot(N,L), 0.0);
 
-	vec4 diffuse  = DiffuseProduct * NdotL;
-
-	fragColor = diffuse;
+	fragColor = DiffuseProduct * NdotL;
 }
 )";
 
@@ -81,101 +79,97 @@ public:
 		glMatrixMode(GL_PROJECTION); glLoadMatrixf(glm::value_ptr(proj));
 		glMatrixMode(GL_MODELVIEW);  glLoadMatrixf(glm::value_ptr(view));
 
-		glm::vec4 lightPos = glm::vec4(0.0f, 1.0f, 0.0f, 0.0f);
 		glm::vec4 diffuse = glm::vec4(1.0f, 1.0f, 1.0f, 0.0f);
 
-		vgl::setLight(GL_LIGHT0, lightPos,
-			glm::vec4(0.0f),
-			diffuse,
-			glm::vec4(0.0f) );
+		vgl::setLight(GL_LIGHT0, L_position, glm::vec4(0.0f), diffuse, glm::vec4(0.0f) );
 
-		glColor3f(1.0f, 1.0f, 1.0f);
-
-		// 1) left: fine mesh
+		// 1) left: fine gridmesh
 		glm::mat4 model_L = glm::translate(glm::mat4(1.0f), glm::vec3(-1.25f, 0.0f, 0.0f));;
 		model_L *= glm::mat4_cast(glm::quat(glm::radians(glm::vec3(-90.0f, 0.0f, 0.0f))));
 		{
-			glEnable(GL_LIGHTING);
-
 			glPushMatrix();
 			glMultMatrixf(glm::value_ptr(model_L));
 
+			glEnable(GL_LIGHTING);
 			vgl::drawTriMesh(plane_xy.vertices, plane_xy.normals, plane_xy.faces);
+			glDisable(GL_LIGHTING);
+
+			if (show_wireframe) {
+				glColor3f(0.0f, 0.0f, 0.0f);
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+				vgl::drawTriMesh(plane_xy.vertices, plane_xy.normals, plane_xy.faces);
+				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+				glColor3f(1.0f, 1.0f, 1.0f);
+			}
 
 			glPopMatrix();
-			glDisable(GL_LIGHTING);
 		}
 
+		// 2) right: draw a quad
 		const float size = 1.0f;
 		glm::mat4 model_R = glm::translate(glm::mat4(1.0f), glm::vec3(1.25f, 0.0f, 0.0f));;
 		model_R *= glm::mat4_cast(glm::quat(glm::radians(glm::vec3(-90.0f, 0.0f, 0.0f))));
-
-		// 2-1) right: draw a quad with normalmap
-		if (!show_normalcolor)
 		{
+			glPushMatrix();
+			glMultMatrixf(glm::value_ptr(model_R));
+
 			glEnable(GL_LIGHTING);
-			glPushMatrix();
-			glMultMatrixf(glm::value_ptr(model_R));
 
-			glEnable(GL_TEXTURE_2D);
-
-			shader.DrawShader([&] {
-				GLuint loc = -1;
-
-				loc = shader.GetUniformLocation("Projection");
-				if (-1 != loc) glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(proj));
-				loc = shader.GetUniformLocation("View");
-				if (-1 != loc) glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(view));
-				loc = shader.GetUniformLocation("Model");
-				if (-1 != loc) glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(model_R));
-
-				loc = shader.GetUniformLocation("LightPosition");
-				if (-1 != loc) glUniform4fv(loc, 1, glm::value_ptr(lightPos));
-				loc = shader.GetUniformLocation("DiffuseProduct");
-				if (-1 != loc) glUniform4fv(loc, 1, glm::value_ptr(diffuse));
-
-				loc = shader.GetUniformLocation("normalMap");
-				if (-1 != loc) {
-					glActiveTexture(GL_TEXTURE0 + 0);
-					glBindTexture(GL_TEXTURE_2D, tex2D);
-					glUniform1i(loc, 0);
-				}
-
-				glBegin(GL_QUADS);
-				glVertexAttrib2f(1, 0.0f, 0.0f); glVertex3f(-size, +size, 0.0f);
-				glVertexAttrib2f(1, 0.0f, 1.0f); glVertex3f(-size, -size, 0.0f);
-				glVertexAttrib2f(1, 1.0f, 1.0f); glVertex3f(+size, -size, 0.0f);
-				glVertexAttrib2f(1, 1.0f, 0.0f); glVertex3f(+size, +size, 0.0f);
-				glEnd();
-			});
-			glBindTexture(GL_TEXTURE_2D, 0);
-			glDisable(GL_TEXTURE_2D);
-			
-			glPopMatrix();
-			
-			glDisable(GL_LIGHTING);
-		}
-
-		// 2-2) right: draw a quad with normal color
-		if (show_normalcolor)
-		{
-			glPushMatrix();
-			glMultMatrixf(glm::value_ptr(model_R));
-
+			// set normal color texture (for legacy GL)
 			glEnable(GL_TEXTURE_2D);
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, tex2D);
 
-			glBegin(GL_QUADS);
-			glTexCoord2f(0.0f, 0.0f); glVertex3f(-size, +size, 0.0f);
-			glTexCoord2f(0.0f, 1.0f); glVertex3f(-size, -size, 0.0f);
-			glTexCoord2f(1.0f, 1.0f); glVertex3f(+size, -size, 0.0f);
-			glTexCoord2f(1.0f, 0.0f); glVertex3f(+size, +size, 0.0f);
-			glEnd();
+			auto DrawQuad = [](float size) {
+				glBegin(GL_TRIANGLES);
+				glTexCoord2f(0.0f, 1.0f); glVertexAttrib2f(1, 0.0f, 1.0f); glVertex3f(-size, +size, 0.0f);
+				glTexCoord2f(0.0f, 0.0f); glVertexAttrib2f(1, 0.0f, 0.0f); glVertex3f(-size, -size, 0.0f);
+				glTexCoord2f(1.0f, 1.0f); glVertexAttrib2f(1, 1.0f, 1.0f); glVertex3f(+size, +size, 0.0f);
+				glTexCoord2f(0.0f, 0.0f); glVertexAttrib2f(1, 0.0f, 0.0f); glVertex3f(-size, -size, 0.0f);
+				glTexCoord2f(1.0f, 0.0f); glVertexAttrib2f(1, 1.0f, 0.0f); glVertex3f(+size, -size, 0.0f);
+				glTexCoord2f(1.0f, 1.0f); glVertexAttrib2f(1, 1.0f, 1.0f); glVertex3f(+size, +size, 0.0f);
+				glEnd();
+			};
+
+			if (!show_normalcolor) {
+				shader.DrawShader([&] {
+					GLuint loc = -1;
+
+					loc = shader.GetUniformLocation("Projection");
+					if (-1 != loc) glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(proj));
+					loc = shader.GetUniformLocation("View");
+					if (-1 != loc) glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(view));
+					loc = shader.GetUniformLocation("Model");
+					if (-1 != loc) glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(model_R));
+
+					loc = shader.GetUniformLocation("LightPosition");
+					if (-1 != loc) glUniform4fv(loc, 1, glm::value_ptr(L_position));
+					loc = shader.GetUniformLocation("DiffuseProduct");
+					if (-1 != loc) glUniform4fv(loc, 1, glm::value_ptr(diffuse));
+
+					loc = shader.GetUniformLocation("normalMap");
+					glUniform1i(loc, 0);
+
+					DrawQuad(1.0f);
+				});
+			}
+			else {
+				DrawQuad(1.0f);
+			}
+		
+			glDisable(GL_LIGHTING);
 
 			glBindTexture(GL_TEXTURE_2D, 0);
-
 			glDisable(GL_TEXTURE_2D);
+			
+			if (show_wireframe) {
+				glColor3f(0.0f, 0.0f, 0.0f);
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+				DrawQuad(1.0f);
+				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+				glColor3f(1.0f, 1.0f, 1.0f);
+			}
+
 			glPopMatrix();
 		}
 
@@ -202,13 +196,19 @@ public:
 		TwAddVarRW(bar, "Global-posX", TwType::TW_TYPE_FLOAT, &GlobalViewPosition.x, "group='Global' label='posX' step=0.01");
 		TwAddVarRW(bar, "Global-posY", TwType::TW_TYPE_FLOAT, &GlobalViewPosition.y, "group='Global' label='posY' step=0.01");
 		TwAddVarRW(bar, "Global-posZ", TwType::TW_TYPE_FLOAT, &GlobalViewPosition.z, "group='Global' label='posZ' step=0.01");
+#endif
+		TwAddVarRW(bar, "Light_pos", TwType::TW_TYPE_DIR3F, &L_position, "group='Global' label='Light_pos' open");
 		TwAddVarRW(bar, "show_normalcolor", TwType::TW_TYPE_BOOLCPP, &show_normalcolor, "label='show_normalcolor' ");
 		TwAddVarRW(bar, "show_wireframe", TwType::TW_TYPE_BOOLCPP, &show_wireframe, "label='show_wireframe' ");
-#endif
 
 		// enable hidden surface removal frags
 		glEnable(GL_CULL_FACE);
 		glEnable(GL_DEPTH_TEST);
+
+		// set some offset trick to show wireframe clearly
+		glEnable(GL_POLYGON_OFFSET_FILL);
+		glDisable(GL_POLYGON_OFFSET_LINE);
+		glPolygonOffset(1.0f, 1.0f);
 
 		// prepare shader to get image as normal information
 		shader = vgl::GLShader();
@@ -220,25 +220,27 @@ public:
 		const int TEX_WIDTH = 128;
 		std::vector<glm::vec3> texture = std::vector<glm::vec3>(TEX_WIDTH * TEX_WIDTH);
 
-		plane_xy = vgl::PlaneXY(TEX_WIDTH-1, 2.0f);
+		plane_xy = vgl::PlaneXY(TEX_WIDTH, 2.0f);
 		for (int j = 0; j < TEX_WIDTH; j++)
 		for (int i = 0; i < TEX_WIDTH; i++){
 			glm::vec3& v = plane_xy.vertices[i + j * TEX_WIDTH];
 			glm::vec3& n = plane_xy.normals [i + j * TEX_WIDTH];
 
-			float x = v.x;
-			float y = v.y;
+			float x = glm::two_pi<float>() * v.x;
+			float y = glm::two_pi<float>() * v.y;
 
-			n.x = -glm::cos(glm::two_pi<float>() * x);
-			n.y = +glm::sin(glm::two_pi<float>() * y);
+			v.z = 0.125f * (glm::sin(x) + glm::sin(y)); // function for shape
+
+			// normal vector from its partial derivatives
+			n.x = 0.125f * -glm::cos(x);
+			n.y = 0.125f * -glm::cos(y);
+			n.z = 0.125f;
 			n = glm::normalize(n);
 
 			texture[i + j * TEX_WIDTH] = 0.5f * (glm::vec3(n.x, n.y, n.z) + 1.0f); // [-1.0:1.0]^3 -> [0.0:+1.0]^3
-
-			v.z = 0.125f * glm::sin(glm::two_pi<float>() * x) * glm::cos(glm::two_pi<float>() * y);
 		}
 
-		// create depth map as 2D texture
+		// create normal map as a 2D texture
 		glGenTextures(1, &tex2D);
 		glBindTexture(GL_TEXTURE_2D, tex2D);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 128, 128, 0, GL_RGB, GL_FLOAT, nullptr);
@@ -262,12 +264,12 @@ public:
 	}
 
 private:
-
-	// shader
 	vgl::GLShader shader;
-	vgl::PlaneXY plane_xy;
+	vgl::PlaneXY  plane_xy;
 
 	GLuint tex2D = NULL;
+
+	glm::vec4 L_position = glm::vec4(0, 3, 0.1, 0);
 
 	bool is_ortho = false;
 	bool show_normalcolor = true;
