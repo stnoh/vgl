@@ -133,18 +133,18 @@ void IcoSphere::subdivide() {
 
 vgl::PlaneXY::PlaneXY(int subdiv, float scale)
 {
-	for (int j = 0; j <= subdiv; j++)
-	for (int i = 0; i <= subdiv; i++)
+	for (int j = 0; j < subdiv; j++)
+	for (int i = 0; i < subdiv; i++)
 	{
-		float x = scale * ((i + 0) / (float)subdiv - 0.5f);
-		float y = scale * ((j + 0) / (float)subdiv - 0.5f);
+		float x = scale * ((i + 0) / (float)(subdiv - 1) - 0.5f);
+		float y = scale * ((j + 0) / (float)(subdiv - 1) - 0.5f);
 
 		vertices.push_back(glm::vec3(x, y, 0.0f));
 		normals.push_back(glm::vec3(0.0f, 0.0f, 1.0f));
 	}
 
-	for (int j = 0; j < subdiv; j++)
-	for (int i = 0; i < subdiv; i++)
+	for (int j = 0; j < subdiv-1; j++)
+	for (int i = 0; i < subdiv-1; i++)
 	{
 		int i0 = i;
 		int i1 = i + 1;
