@@ -21,12 +21,6 @@ C++によるOpenGLの基本的な実装を含んでいる．
 - [dirent](https://github.com/tronkko/dirent): POSIX 互換ファイル/ディレクトリ参照ライブラリ．*NIX 系では基本的に入っているものの，Win32系にはないので追加．  
   + VS2019のサポートしているC++17の`std::filesystem`で代替可能と思われるが，動作する過去のやり方なのでまず残しておく．  
 
-その他，以下は必要に応じて追加したライブラリである．
-
-- [stb](https://github.com/nothings/stb): かの有名な``stb_image.h``の元となるらいぶらり．  
-  + 2023年当たりにセキュリティ問題が多く報告され，まだ完璧には直っていないようだが，教育用途の単純利用ならばそこまで問題ないと思われる．  
-  + 長期的には，何か方策を考えるのが良いかも知れない．  
-
 ## インストール
 
 1. まず，gitによってクローンを行う．もちろん，ダウンロードでも構わないが，  
@@ -104,7 +98,8 @@ C++やGLは，何れも2000年代から2010年代中盤まで多くの変革を�
 - app103: SimpleDrawApp, 非常に簡単な三角形を描くプログラム．  
 - app104: DepthTestApp, 隠面消去に関わる例題プログラム．  
 - app105: SimpleShaderApp, Gouraud shader の例題プログラム．  
-- app106: [TODO]   
+- app106: SimpleShadowApp, GLSL による Shadow map の例題プログラム．  
+- app107: SimpleTextureApp, 法線マップの例題プログラム．  
 
 ### Basic modeling (形状の扱い)  
 
