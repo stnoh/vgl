@@ -184,7 +184,7 @@ public:
 
 	bool Init()
 	{
-		glfwSetWindowTitle(window, "BezierCurvesApp");
+		glfwSetWindowTitle(window, "CurveDrawingApp");
 		TwDefine("Bar iconified=true"); // hide TwBar at initial 
 #if 1
 		// initialize interaction data
