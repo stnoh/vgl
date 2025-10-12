@@ -21,6 +21,7 @@ void drawSphere(float radius, glm::vec4 color);
 void drawCube(float size);
 
 // simple primitive (GL_LINES)
+void drawGridXY(float length, int step);
 void drawGridXZ(float length, int step);
 void drawAABB(glm::vec3 minAB, glm::vec3 maxAB);
 

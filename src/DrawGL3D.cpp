@@ -137,6 +137,33 @@ void drawCube(float radius)
 ///////////////////////////////////////////////////////////////////////////////
 // simple primitive (GL_LINES)
 ///////////////////////////////////////////////////////////////////////////////
+void drawGridXY(float length, int step)
+{
+	// draw grid on XZ plane
+	glBegin(GL_LINES);
+
+	float step_x = length / (float)step;
+	float step_z = length / (float)step;
+
+	// parallel with Y-axis
+	for (int i = 0; i <= step; i++) {
+		float x = -length * 0.5f + step_x * i;
+		float y = +length * 0.5f;
+		glVertex3f(x, -y, 0.0f);
+		glVertex3f(x, +y, 0.0f);
+	}
+
+	// parallel with X-axis
+	for (int i = 0; i <= step; i++) {
+		float x = +length * 0.5f;
+		float y = -length * 0.5f + step_z * i;
+		glVertex3f(-x, y, 0.0f);
+		glVertex3f(+x, y, 0.0f);
+	}
+
+	glEnd();
+}
+
 void drawGridXZ(float length, int step)
 {
 	// draw grid on XZ plane
