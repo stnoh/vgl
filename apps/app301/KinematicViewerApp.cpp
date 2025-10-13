@@ -52,7 +52,25 @@ public:
 		glBegin(GL_POINTS);
 		for (auto p : pts) glVertex3fv(glm::value_ptr(p));
 		glEnd();
+
+		// show target
+		glPointSize(5.0f);
+		glColor3f(1.0f, 0.0f, 0.0f);
+		if (is_left_drag) {
+			glBegin(GL_POINTS);
+			glm::vec3 pos = GetPos(mouse_this_x, mouse_this_y);
+			glVertex3fv(glm::value_ptr(pos));
+			glEnd();
+		}
 	}
+
+	glm::vec3 GetPos(int mouse_x, int mouse_y)
+	{
+		float aspect = width / (float)height;
+		float pos_x = +2.0f * (mouse_x / (float)width  - 0.5f) * zoom * aspect - center_x;
+		float pos_y = -2.0f * (mouse_y / (float)height - 0.5f) * zoom          - center_y;
+		return glm::vec3(pos_x, pos_y, 0.0f);
+	};
 
 	void ComputeIK(glm::vec3 target_pos)
 	{
@@ -71,14 +89,6 @@ public:
 	bool Update()
 	{
 		bool updated = AppGLBase::Update();
-
-		auto GetPos = [&](int mouse_x, int mouse_y)->glm::vec3
-		{
-			float aspect = width / (float)height;
-			float pos_x = +2.0f * (mouse_x / (float)width  - 0.5f) * zoom * aspect - center_x;
-			float pos_y = -2.0f * (mouse_y / (float)height - 0.5f) * zoom          - center_y;
-			return glm::vec3(pos_x, pos_y, 0.0f);
-		};
 
 		////////////////////////////////////////
 		// left click: add control point
