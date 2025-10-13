@@ -35,7 +35,7 @@ Ubuntu でのビルド可能性は保証されない．
 
 ## 実行可能ファイルの目録
 
-### Basic rendering (rasterization に基づくもの)
+### Basic rendering (rasterization に基づく描画)
 
 - app101: TestAppGL, GLFWによる簡単な Windows 立ち上げテストプログラム．  
 - app102: CameraFrustumViewerApp, カメラ視野や姿勢などとレンダリングされた結果との対応がみれるプログラム．  
@@ -47,17 +47,17 @@ Ubuntu でのビルド可能性は保証されない．
 
 ### Basic modeling (形状の扱い)  
 
-- app201: [TODO] Quadratic Bezier drawing + control  
-- app202: [TODO] Triangle mesh loader  
+- app201: CurveDrawingApp, ちょっとした修正で曲線描画が可能なプログラム．  
+- app202: TriMeshViewerApp, ちょっとした修正で細分割の適用可能なプログラム．  
 - app203: [TODO] 簡単なボリュームレンダラ (?)  
 
-### Basic animation  
+### Basic animation (アニメーションの原理)  
 
-- app301: [TODO] Forward Kinematics  
+- app301: KinematicViewerApp, ちょっとした修正で逆機構学の適用可能なプログラム．  
 - app302: [TODO] Elastic pendulum  
 - app303: [TODO] Stable Fluids (2D simple version)  
 
-### Advanced rendering (ray-tracing に基づくもの)
+### Advanced rendering (ray-tracing に基づく描画)
 
 - app401: mrdoob氏の [glsl-sandbox](https://github.com/mrdoob/glsl-sandbox) の機能を真似したローカル簡略版．  
 
@@ -67,6 +67,7 @@ Ubuntu でのビルド可能性は保証されない．
 本コードはC++11以後のModern C++やModern GLではなく，C++03のような古い書き方とLegacy GLを多く採用している．C++やGLは，何れも2000年代から2010年代中盤まで多くの変革を経ており，書き方がコロコロ変わっていた時期であった．そこで，インターネット上の記事を探しても，複数のやり方がかなり混在しており，参照に注意を要する．  
 
 このレポジトリも，Modern C++はあまり多く使っておらず，C with Classes(<=C++98)からLegacy C++(~=C++03)の書き方に留まっている．  
+- [STL](https://en.cppreference.com/w/cpp/standard_library.html)．`std::vector<T>`, `std::set<T>`, `std::map<T>` など，C++で実装された標準的なコンテナ．  
 - [lambda](https://en.cppreference.com/w/cpp/language/lambda.html)以外のModern C++の書き方はあまり多く使われていない．  
 - 使っているライブラリの多くは[RAII](https://en.cppreference.com/w/cpp/language/raii.html)以前のものであるため，導入に制約が多く古いやり方に則ってやっている．  
 - [TODO] 生のポインタでなく，[smart pointer](https://en.cppreference.com/w/cpp/memory.html#Smart_pointers)を使用  
