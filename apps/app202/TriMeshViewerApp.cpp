@@ -180,13 +180,12 @@ public:
 				AddFace(vidx2 , vidx20, vidx12);
 			}
 
-			// transfer data
+			// transfer data for the next iteration
 			vertices_subdiv = vertices_subdiv_new;
 			faces_subdiv = faces_subdiv_new;
-
-			printf("subdivision level (%d): mesh (%4d, %4d)\n", n, vertices_subdiv.size(), faces_subdiv.size()/3);
 		}
-		printf("\n");
+
+		printf("subdivision level (%d): mesh (%4d, %4d)\n", N_subdiv, vertices_subdiv.size(), faces_subdiv.size() / 3);
 
 		// in the end, compute vertex normals from triangles
 		normals_subdiv = vgl::ComputeVertexNormals(vertices_subdiv, faces_subdiv);
@@ -199,6 +198,10 @@ public:
 		TwAddButton(bar, "import_mesh", [](void* client) {
 			TriMeshViewerApp* _this = (TriMeshViewerApp*)client;
 			_this->LoadObjFile();
+		}, this, " ");
+		TwAddButton(bar, "export_mesh", [](void* client) {
+			TriMeshViewerApp* _this = (TriMeshViewerApp*)client;
+			_this->SaveObjFile();
 		}, this, " ");
 #if 1
 		TwAddButton(bar, "Global-init", [](void* client) {
@@ -222,7 +225,7 @@ public:
 				TriMeshViewerApp* _this = (TriMeshViewerApp*)obj;
 				*(int*)value = _this->N_subdiv;
 			},
-			this, " min=0 max=3");
+			this, " min=0 max=4");
 
 		resetGlobalView();
 
@@ -265,6 +268,20 @@ private:
 
 			vgl::ReadTriMeshObj(filepath, vertices, faces);
 			Subdivide();
+		}
+	}
+	void SaveObjFile()
+	{
+		char const* filterPatterns[1] = { "*.obj" };
+		char* filepath = tinyfd_saveFileDialog(
+			"Write .obj mesh file",
+			"./", 1, filterPatterns, NULL);
+
+		if (filepath)
+		{
+			printf("filepath: %s\n", filepath);
+
+			vgl::WriteTriMeshObj(filepath, vertices_subdiv, faces_subdiv);
 		}
 	}
 
