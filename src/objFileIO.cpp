@@ -5,14 +5,132 @@ Author: Seung-Tak Noh (seungtak.noh [at] gmail.com)
 #include <vgl/objFileIO.h>
 #include <sstream>
 #include <iterator>
+#include <functional>
 
 namespace vgl {
 
-void _ReadObjFile(std::ifstream& iFile, std::vector<glm::vec3>& V,
-	const bool existT, std::vector<glm::vec2>& T,
-	const bool existN, std::vector<glm::vec3>& N,
+void _WriteObjFile(const char* filepath, const std::vector<glm::vec3>& V,
+	const std::vector<glm::vec2>* T, const std::vector<glm::vec3>* N,
+	const std::vector<glm::uint>& F)
+{
+	std::ofstream oFile(filepath);
+
+	// write all vertex position data (mandatory)
+	{
+		std::stringstream ss;
+		char line[1024];
+
+		for (int vidx = 0; vidx < V.size(); vidx++)
+		{
+			glm::vec3 p = V[vidx];
+			std::snprintf(line, 1024, "v %f %f %f", p.x, p.y, p.z);
+			ss << line << std::endl;
+		}
+		oFile << ss.str();
+	}
+
+	// write all optional data if exists
+	if (NULL != T) {
+		std::stringstream ss;
+		char line[1024];
+
+		for (int tidx = 0; tidx < T->size(); tidx++)
+		{
+			glm::vec2 t = (*T)[tidx];
+			std::snprintf(line, 1024, "vt %f %f", t.x, t.y);
+			ss << line << std::endl;
+		}
+		oFile << ss.str();
+	}
+	if (NULL != N) {
+		std::stringstream ss;
+		char line[1024];
+
+		for (int nidx = 0; nidx < N->size(); nidx++)
+		{
+			glm::vec3 n = (*N)[nidx];
+			std::snprintf(line, 1024, "vn %f %f %f", n.x, n.y, n.z);
+			ss << line << std::endl;
+		}
+		oFile << ss.str();
+	}
+
+	// write all face data (mandatory)
+	{
+		auto WriteV__ = [](int vidx) -> std::string {
+			char line[1024];
+			std::snprintf(line, 1024, "%d//", vidx);
+			return std::string(line);
+		};
+		auto WriteV_N = [](int vidx) -> std::string {
+			char line[1024];
+			std::snprintf(line, 1024, "%d//%d", vidx, vidx);
+			return std::string(line);
+		};
+		auto WriteVT_ = [](int vidx) -> std::string {
+			char line[1024];
+			std::snprintf(line, 1024, "%d/%d/", vidx, vidx);
+			return std::string(line);
+		};
+		auto WriteVTN = [](int vidx) -> std::string {
+			char line[1024];
+			std::snprintf(line, 1024, "%d/%d/%d", vidx, vidx, vidx);
+			return std::string(line);
+		};
+
+		std::function<std::string(int)> WriteV;
+		if (NULL == T && NULL == N) WriteV = WriteV__;
+		if (NULL == T && NULL != N) WriteV = WriteV_N;
+		if (NULL != T && NULL == N) WriteV = WriteVT_;
+		if (NULL != T && NULL != N) WriteV = WriteVTN;
+
+		for (int fidx = 0; fidx < F.size() / 3; fidx++)
+		{
+			// [CAUTION] obj index starts from "1", not "0"
+			int vidx0 = F[3 * fidx + 0] + 1;
+			int vidx1 = F[3 * fidx + 1] + 1;
+			int vidx2 = F[3 * fidx + 2] + 1;
+
+			oFile << "f " + WriteV(vidx0) + " " +  WriteV(vidx1) + " " + WriteV(vidx2) << std::endl;
+		}
+	}
+
+	// EOF: need one blank at the end of file
+	oFile.flush(); // sync file I/O
+	oFile.close();
+}
+
+void WriteTriMeshObj(const char* filepath, const std::vector<glm::vec3>& V,
+	const std::vector<glm::vec2>& T, const std::vector<glm::vec3>& N,
+	const std::vector<glm::uint>& F)
+{
+	_WriteObjFile(filepath, V, &T, &N, F);
+}
+
+void WriteTriMeshObj(const char* filepath, const std::vector<glm::vec3>& V,
+	const std::vector<glm::vec3>& N,
+	const std::vector<glm::uint>& F)
+{
+	_WriteObjFile(filepath, V, NULL, &N, F);
+}
+
+void WriteTriMeshObj(const char* filepath, const std::vector<glm::vec3>& V,
+	const std::vector<glm::uint>& F)
+{
+	_WriteObjFile(filepath, V, NULL, NULL, F);
+}
+
+void _ReadObjFile(const char* filepath, std::vector<glm::vec3>& V,
+	std::vector<glm::vec2>* T, std::vector<glm::vec3>* N,
 	std::vector<glm::uint>& F)
 {
+	// check the file
+	std::ifstream iFile(filepath);
+	if (!iFile.is_open()) {
+		fprintf(stderr, "ERROR: cannot find a file: %s\n", filepath);
+		return;
+	}
+
 	std::string line;
 
 	while (std::getline(iFile, line)) {
@@ -38,18 +156,20 @@ void _ReadObjFile(std::ifstream& iFile, std::vector<glm::vec3>& V,
 				v.z = std::stof(tokens[3]);
 				V.push_back(v);
 			}
-			if (tokens[0] == "vt" && existT) {
+
+			// two optional cases
+			if (tokens[0] == "vt" && NULL != T) {
 				glm::vec3 vt;
 				vt.x = std::stof(tokens[1]);
 				vt.y = std::stof(tokens[2]);
-				T.push_back(vt);
+				T->push_back(vt);
 			}
-			if (tokens[0] == "vn" && existN) {
+			if (tokens[0] == "vn" && NULL != N) {
 				glm::vec3 vn;
 				vn.x = std::stof(tokens[1]);
 				vn.y = std::stof(tokens[2]);
 				vn.z = std::stof(tokens[3]);
-				N.push_back(vn);
+				N->push_back(vn);
 			}
 
 			// faces
@@ -69,41 +189,17 @@ void _ReadObjFile(std::ifstream& iFile, std::vector<glm::vec3>& V,
 
 void ReadTriMeshObj(const char* filepath, std::vector<glm::vec3>& V, std::vector<glm::vec2>& T, std::vector<glm::vec3>& N, std::vector<glm::uint>& F)
 {
-	// check the file
-	std::ifstream iFile(filepath);
-	if (!iFile.is_open()) {
-		fprintf(stderr, "ERROR: cannot find a file: %s\n", filepath);
-		return;
-	}
-
-	_ReadObjFile(iFile, V, true, T, true, N, F);
+	_ReadObjFile(filepath, V, &T, &N, F);
 }
 
 void ReadTriMeshObj(const char* filepath, std::vector<glm::vec3>& V, std::vector<glm::vec3>& N, std::vector<glm::uint>& F)
 {
-	// check the file
-	std::ifstream iFile(filepath);
-	if (!iFile.is_open()) {
-		fprintf(stderr, "ERROR: cannot find a file: %s\n", filepath);
-		return;
-	}
-
-	std::vector<glm::vec2> T;
-	_ReadObjFile(iFile, V, false, T, true, N, F);
+	_ReadObjFile(filepath, V, NULL, &N, F);
 }
 
 void ReadTriMeshObj(const char* filepath, std::vector<glm::vec3>& V, std::vector<glm::uint>& F)
 {
-	// check the file
-	std::ifstream iFile(filepath);
-	if (!iFile.is_open()) {
-		fprintf(stderr, "ERROR: cannot find a file: %s\n", filepath);
-		return;
-	}
-
-	std::vector<glm::vec2> T;
-	std::vector<glm::vec3> N;
-	_ReadObjFile(iFile, V, false, T, false, N, F);
+	_ReadObjFile(filepath, V, NULL, NULL, F);
 }
 
 }
