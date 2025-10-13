@@ -167,30 +167,30 @@ vgl::PlaneXY::PlaneXY(int subdiv, float scale)
 ///////////////////////////////////////////////////////////////////////////////
 std::pair<std::vector<glm::vec3>, std::map<glm::uint, std::set<glm::uint>>> ComputeFaceNormals(std::vector<glm::vec3> vertices, std::vector<glm::uint> faces)
 {
-	std::vector<glm::vec3> face_normals;
+	std::vector<glm::vec3> face_normals(faces.size() / 3, glm::vec3(0.0f));
 	std::map<glm::uint, std::set<glm::uint>> vidx_to_face_indices;
 
 	// compute face normals and vertex-to-face indices
-	for (int f = 0; f < faces.size(); f += 3)
+	for (int fidx = 0; fidx < faces.size() / 3; fidx++)
 	{
 		// get vertex indices of this triangle
-		int vidx0 = faces[f + 0];
-		int vidx1 = faces[f + 1];
-		int vidx2 = faces[f + 2];
+		int vidx0 = faces[3 * fidx + 0];
+		int vidx1 = faces[3 * fidx + 1];
+		int vidx2 = faces[3 * fidx + 2];
 
 		if (vidx_to_face_indices.end() == vidx_to_face_indices.find(vidx0)) vidx_to_face_indices.insert(std::make_pair(vidx0, std::set<glm::uint>()));
 		if (vidx_to_face_indices.end() == vidx_to_face_indices.find(vidx1)) vidx_to_face_indices.insert(std::make_pair(vidx1, std::set<glm::uint>()));
 		if (vidx_to_face_indices.end() == vidx_to_face_indices.find(vidx2)) vidx_to_face_indices.insert(std::make_pair(vidx2, std::set<glm::uint>()));
 
-		vidx_to_face_indices.find(vidx0)->second.insert(f);
-		vidx_to_face_indices.find(vidx1)->second.insert(f);
-		vidx_to_face_indices.find(vidx2)->second.insert(f);
+		vidx_to_face_indices.find(vidx0)->second.insert(fidx);
+		vidx_to_face_indices.find(vidx1)->second.insert(fidx);
+		vidx_to_face_indices.find(vidx2)->second.insert(fidx);
 
 		glm::vec3 v0 = vertices[vidx0];
 		glm::vec3 v1 = vertices[vidx1];
 		glm::vec3 v2 = vertices[vidx2];
 
-		face_normals.push_back(glm::cross(v1 - v0, v2 - v0));
+		face_normals[fidx] = glm::normalize(glm::cross(v1 - v0, v2 - v0));
 	}
 
 	return { face_normals, vidx_to_face_indices };
@@ -205,21 +205,21 @@ std::vector<glm::vec3> ComputeVertexNormals(std::vector<glm::vec3> vertices, std
 	face_normals = data.first;
 	vertex_to_faces = data.second;
 
-	std::vector<glm::vec3> vertex_normals;
+	std::vector<glm::vec3> vertex_normals(vertices.size(), glm::vec3(0.0f));
 
 	// average vertex normals
 	for (int n = 0; n < vertices.size(); n++)
 	{
-		glm::vec3 normal = glm::vec3();
+		glm::vec3 normal = glm::vec3(0.0f);
 
 		std::set<glm::uint> f_indices = vertex_to_faces.find(n)->second;
 
-		for (int f = 0; f < f_indices.size(); f++)
+		for (auto fidx : f_indices)
 		{
-			normal += face_normals[f];
+			normal += face_normals[fidx];
 		}
 
-		vertex_normals.push_back(normal / (float)f_indices.size());
+		vertex_normals[n] = glm::normalize(normal);
 	}
 
 	return vertex_normals;
