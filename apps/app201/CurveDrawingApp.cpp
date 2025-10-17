@@ -59,23 +59,21 @@ public:
 	{
 		// clear computed curve in advance
 		curve_points.clear();
-		if (control_points.size() <= 1) return;
+		if (control_points.size() <= 2) return;
+
+		curve_points = std::vector<glm::vec3>(N_curve);
 
 		// very simple linear interpolation
-		int N_CPs = control_points.size() - 1;
-		for (int n = 0; n < N_CPs; n++)
+		auto CP0 = control_points[0];
+		auto CP2 = control_points[2];
+
+		for (int i = 0; i < N_curve; i++)
 		{
-			auto CP0 = control_points[n + 0];
-			auto CP1 = control_points[n + 1];
+			float t0 = i / (float)(N_curve - 1);
+			float t1 = 1.0f - t0;
 
-			for (int i = 0; i < N_curve; i++)
-			{
-				float t0 = i / (float)(N_curve - 1);
-				float t1 = 1.0f - t0;
-
-				glm::vec3 p = t1 * CP0 + t0 * CP1;
-				curve_points.push_back(p);
-			}
+			glm::vec3 p = t1 * CP0 + t0 * CP2;
+			curve_points[i] = p;
 		}
 	}
 
