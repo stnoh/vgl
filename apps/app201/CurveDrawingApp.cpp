@@ -61,8 +61,6 @@ public:
 		curve_points.clear();
 		if (control_points.size() <= 2) return;
 
-		curve_points = std::vector<glm::vec3>(N_curve);
-
 		// very simple linear interpolation
 		auto CP0 = control_points[0];
 		auto CP2 = control_points[2];
@@ -73,7 +71,7 @@ public:
 			float t1 = 1.0f - t0;
 
 			glm::vec3 p = t1 * CP0 + t0 * CP2;
-			curve_points[i] = p;
+			curve_points.push_back(p);
 		}
 	}
 
