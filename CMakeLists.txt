@@ -119,4 +119,6 @@ add_subdirectory(apps/app202)
 add_subdirectory(apps/app301)
 add_subdirectory(apps/app302)
 
+add_subdirectory(apps/app304)
+
 add_subdirectory(apps/app401)
