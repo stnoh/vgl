@@ -230,13 +230,23 @@ public:
 
 	bool Update()
 	{
-		if (updated) {
+		if (update) {
 			get_from_UI(dens_prev, u_prev, v_prev);
 			vel_step(N, u, v, u_prev, v_prev, visc, dt);
 			dens_step(N, dens, dens_prev, u, v, diff, dt);
 		}
 
-		return updated;
+		return update;
+	}
+
+	void free_data()
+	{
+		if (u) free(u);
+		if (v) free(v);
+		if (u_prev) free(u_prev);
+		if (v_prev) free(v_prev);
+		if (dens) free(dens);
+		if (dens_prev) free(dens_prev);
 	}
 
 	void allocate_data()
@@ -272,6 +282,8 @@ public:
 		TwAddVarRW(bar, "show-velocity", TwType::TW_TYPE_BOOLCPP, &show_velocity, " label='show_velocity'");
 		TwAddVarRW(bar, "show-grid"    , TwType::TW_TYPE_BOOLCPP, &show_grid    , " label='show_grid'");
 
+		TwAddVarRW(bar, "update", TwType::TW_TYPE_BOOLCPP, &update, " label='update'");
+
 		TwAddVarRW(bar, "dt"    , TwType::TW_TYPE_FLOAT, &dt    , "label='dt' step=1e-3 min=1e-3");
 		TwAddVarRW(bar, "visc"  , TwType::TW_TYPE_FLOAT, &visc  , "label='visc' step=0.1 min=0.0");
 		TwAddVarRW(bar, "force" , TwType::TW_TYPE_FLOAT, &force , "label='force' step=0.1 min=0.0");
@@ -286,16 +298,11 @@ public:
 
 	void End()
 	{
-		if (u) free(u);
-		if (v) free(v);
-		if (u_prev) free(u_prev);
-		if (v_prev) free(v_prev);
-		if (dens) free(dens);
-		if (dens_prev) free(dens_prev);
+		free_data();
 	}
 
 private:
-	bool updated = true;
+	bool update = true;
 
 	bool show_density  = true;
 	bool show_velocity = true;
