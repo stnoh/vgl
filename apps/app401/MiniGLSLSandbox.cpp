@@ -172,6 +172,7 @@ public:
 
 		// initialize interaction data
 		InitUserInteraction();
+		glfwSetWindowTitle(window, "MiniGLSLSandbox: default");
 
 		TwDefine("Bar size='150 250'");
 		TwAddVarRW(bar, "UseShader", TwType::TW_TYPE_BOOLCPP, &use_shader, "key=SPACE");
@@ -255,9 +256,14 @@ private:
 				shader->Compile(shader_vs, vgl::SHADER_TYPE::VERTEX);
 				shader->Compile(shader_fs, vgl::SHADER_TYPE::FRAGMENT);
 				shader->Link();
+
+				glfwSetWindowTitle(window, "MiniGLSLSandbox: default");
 			}
 			else {
 				InitUserInteraction();
+				char buf[256];
+				sprintf(buf, "MiniGLSLSandbox: %s", filepath);
+				glfwSetWindowTitle(window, buf);
 			}
 		}
 	}
