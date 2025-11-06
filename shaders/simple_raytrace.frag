@@ -23,10 +23,14 @@ Sphere sphere(int i) {
 }
 
 float intersect_ray_to_sphere(Ray r, Sphere s) {
-	vec3 op = s.center - r.origin;
-	float t, epsilon = 1e-3, b = dot(op, r.direction), det = b * b - dot(op, op) + s.radius * s.radius;
+	const float epsilon = 1e-3;
+
+	vec3 oc = r.origin - s.center;
+	float t;
+	float b = dot(r.direction, oc);
+	float det = b * b - dot(oc, oc) + s.radius * s.radius;
 	if (det < 0.) return 0.; else det = sqrt(det);
-	return (t = b - det) > epsilon ? t : ((t = b + det) > epsilon ? t : 0.);
+	return (t = - b - det) > epsilon ? t : ((t = - b + det) > epsilon ? t : 0.);
 }
 
 int intersect_all(Ray r, out float t, out Sphere s, int avoid) {
