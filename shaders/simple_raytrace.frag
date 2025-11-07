@@ -1,4 +1,4 @@
-﻿#version 330
+#version 330
 
 uniform vec2 resolution;
 
