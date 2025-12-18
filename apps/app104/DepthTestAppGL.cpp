@@ -44,11 +44,11 @@ public:
 
 				glColor3f(0.0f, 1.0f, 1.0f);
 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-				vgl::drawCube(0.5f);
+				vgl::drawCube();
 
 				glColor3f(0.0f, 0.0f, 0.0f);
 				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-				vgl::drawCube(0.5f);
+				vgl::drawCube();
 			}
 			glPopMatrix();
 		};

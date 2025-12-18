@@ -84,51 +84,55 @@ void drawSphere(float radius, glm::vec4 color)
 ///////////////////////////////////////////////////////////////////////////////
 // simple primitive (GL_QUADS)
 ///////////////////////////////////////////////////////////////////////////////
-void drawCube(float radius)
+void drawCube(float size)
 {
+	float x = 0.5f * size;
+	float y = 0.5f * size;
+	float z = 0.5f * size;
+
 	glBegin(GL_QUADS);
 
 	// quad 1: "front"
 	glNormal3f( 0.0f,  0.0f, +1.0f);
-	glVertex3f(-0.5f, -0.5f, +0.5f);
-	glVertex3f(+0.5f, -0.5f, +0.5f);
-	glVertex3f(+0.5f, +0.5f, +0.5f);
-	glVertex3f(-0.5f, +0.5f, +0.5f);
+	glVertex3f(-x, -y, +z);
+	glVertex3f(+x, -y, +z);
+	glVertex3f(+x, +y, +z);
+	glVertex3f(-x, +y, +z);
 
 	// quad 2: "back"
 	glNormal3f( 0.0f,  0.0f, -1.0f);
-	glVertex3f(-0.5f, -0.5f, -0.5f);
-	glVertex3f(-0.5f, +0.5f, -0.5f);
-	glVertex3f(+0.5f, +0.5f, -0.5f);
-	glVertex3f(+0.5f, -0.5f, -0.5f);
+	glVertex3f(-x, -y, -z);
+	glVertex3f(-x, +y, -z);
+	glVertex3f(+x, +y, -z);
+	glVertex3f(+x, -y, -z);
 
 	// quad 3: "left"
 	glNormal3f(-1.0f,  0.0f,  0.0f);
-	glVertex3f(-0.5f, -0.5f, -0.5f);
-	glVertex3f(-0.5f, -0.5f, +0.5f);
-	glVertex3f(-0.5f, +0.5f, +0.5f);
-	glVertex3f(-0.5f, +0.5f, -0.5f);
+	glVertex3f(-x, -y, -z);
+	glVertex3f(-x, -y, +z);
+	glVertex3f(-x, +y, +z);
+	glVertex3f(-x, +y, -z);
 	
 	// quad 4: "right"
 	glNormal3f(+1.0f,  0.0f,  0.0f);
-	glVertex3f(+0.5f, -0.5f, -0.5f);
-	glVertex3f(+0.5f, +0.5f, -0.5f);
-	glVertex3f(+0.5f, +0.5f, +0.5f);
-	glVertex3f(+0.5f, -0.5f, +0.5f);
+	glVertex3f(+x, -y, -z);
+	glVertex3f(+x, +y, -z);
+	glVertex3f(+x, +y, +z);
+	glVertex3f(+x, -y, +z);
 
 	// quad 5: "bottom"
 	glNormal3f( 0.0f, -1.0f,  0.0f);
-	glVertex3f(-0.5f, -0.5f, -0.5f);
-	glVertex3f(+0.5f, -0.5f, -0.5f);
-	glVertex3f(+0.5f, -0.5f, +0.5f);
-	glVertex3f(-0.5f, -0.5f, +0.5f);
+	glVertex3f(-x, -y, -z);
+	glVertex3f(+x, -y, -z);
+	glVertex3f(+x, -y, +z);
+	glVertex3f(-x, -y, +z);
 
 	// quad 6: "top"
 	glNormal3f( 0.0f, +1.0f,  0.0f);
-	glVertex3f(-0.5f, +0.5f, -0.5f);
-	glVertex3f(-0.5f, +0.5f, +0.5f);
-	glVertex3f(+0.5f, +0.5f, +0.5f);
-	glVertex3f(+0.5f, +0.5f, -0.5f);
+	glVertex3f(-x, +y, -z);
+	glVertex3f(-x, +y, +z);
+	glVertex3f(+x, +y, +z);
+	glVertex3f(+x, +y, -z);
 
 	glEnd();
 }

@@ -18,7 +18,7 @@ void drawAxes(double length);
 void drawSphere(float radius, glm::vec4 color);
 
 // simple primitive (GL_QUADS)
-void drawCube(float size);
+void drawCube(float size = 1.0f);
 
 // simple primitive (GL_LINES)
 void drawGridXY(float length, int step);
