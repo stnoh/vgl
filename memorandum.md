@@ -32,10 +32,11 @@
     > make -j16
     ```  
 
-### 他のLinux
+### 他のLinuxについて
 
-- Ubuntu 以外の Linux でも，一定水準以上の使用される distro 版で問題が発生したら，なるべく支援したい．特にSteam OS は今後注目したい．  
-- Custom build なものは支援はしない予定．  
+- Ubuntu 以外の Linux でも，一定水準以上の使用される distro 版で問題が発生したら，なるべく支援したい．  
+  + 特に[Steam OS](https://en.wikipedia.org/wiki/SteamOS)は今後 Linux の標準な distro になると思われるので注目しているところである．  
+- Custom build なものは支援はしない予定．それくらいができる実力なら，ライブラリのビルドも自前で解決できるはずです．  
 
 ### [注意] Mac系
 
@@ -53,30 +54,29 @@
 - [glew-cmake](https://github.com/Perlmint/glew-cmake)-2.2.0: GLEW の cmake 対応版．  
 - [glfw](https://github.com/glfw/glfw)-3.3.10: GLコンテキストの使用可能な基本ウィンドウライブラリ．  
 - [anttweakbar](https://github.com/stnoh/AntTweakBar): OpenGL screen上に備えられる簡単なGUIライブラリ．  
-  本来，[tschw氏のレポジトリ](https://github.com/tschw/AntTweakBar)であったが，もはや Visual Studio 2019 がダウンロードできなくなり，Visual Studio 2022 にも対応できるように小さい変更を加えたものである．  
+  + 本来 [tschw氏のレポジトリ](https://github.com/tschw/AntTweakBar)であったが，もはや Visual Studio 2019 がダウンロードできなくなり，Visual Studio 2022 にも対応できるように小さい変更を加えたものである．  
+  + このライブラリだけビルドが非常に遅いため大体も検討している．しかし，trackball の実装を含んでいる GUI はなかなか見つからないため維持している．  
 
 後，GLFWとは無関係なGUIダイアログや，ファイル入出力などC++14には足りない一般機能を含んでいる．  
 
 - [tinyfiledialog](https://sourceforge.net/projects/tinyfiledialogs/): 環境依存しない File Dialog 用のGUIツール．  
   + このライブラリは現在git submoduleの形で入手が困難なため，直接ファイルを取り入れている(zlib/libpng license)．  
-- [dirent](https://github.com/tronkko/dirent): POSIX 互換ファイル/ディレクトリ参照ライブラリ．*NIX 系では基本的に入っているものの，Win32系にはないので追加．  
-  + VS2019のサポートしているC++17の`std::filesystem`で代替可能と思われるが，動作する過去のやり方なのでまず残しておく．  
 
-### 追加予定ライブラリ
+
+
+### 使用中止となったライブラリ
+
+- [dirent](https://github.com/tronkko/dirent): POSIX 互換ファイル/ディレクトリ参照ライブラリ．~~*NIX 系では基本的に入っているものの，Win32系にはないので追加．~~  
+  + 実際のところ必要がなかったため，除外している．  
+    初期の想定としては，実行ファイルのパスでの特定が必要なC/C++の特性上，シェーダを異なるファイルから読めるような対策として入れた．  
+  + しかし，授業事例でのシェーダーは全部コード内部にリテラルとして含めたため，パス問題も不要になった．  
+  + 仮に必要としてもC++17の`filesystem`で解決可能に思われる．  
+
+
+
+### 追加検討中のライブラリ
 
 恐らく必要に応じて追加の必要なライブラリである．
-
-- [stb](https://github.com/nothings/stb): かの有名な``stb_image.h``の元となるらいぶらり．  
-  + 2023年当たりにセキュリティ問題が多く報告され，まだ完璧には直っていないようだが，教育用途の単純利用ならばそこまで問題ないと思われる．  
-  + 長期的には，何か方策を考えるのが良いかも知れない．  
-
-### 使っているライブラリにおける考慮事項
-
-- dirent: もう必要ないのでは？  
-  初期の想定としては，実行ファイルのパスでの特定が必要なC/C++の特性上，
-  シェーダを異なるファイルから読めるような対策として入れたものの，  
-  授業事例でのシェーダーは全部コード内部にリテラルに含めた状態なのでパス問題も不要になっており，  
-  仮に必要としてもC++17の`filesystem`で解決可能に思われる．  
 
 
 #### [RGFW](https://github.com/ColleagueRiley/RGFW)
@@ -102,6 +102,15 @@ Type: AntTweakBarの代わりとして使えるかも知れない．
 
 - [✔] Modern GUI  
 - [△] 情報がちょっと足りない  
+
+
+#### [stb](https://github.com/nothings/stb)  
+
+Type: image loader
+
+- かの有名な``stb_image.h``の元となるライブラリ．  
+- [✔] header-only library: ヘッダのみで処理可能な，最大の利点  
+- [✘] 2023年当たりにセキュリティ問題が多く報告され，まだ完璧には直っていないようだが，教育用途の単純利用ならばそこまで問題ないと思われる．  
 
 
 #### [libgd](https://github.com/libgd/libgd)

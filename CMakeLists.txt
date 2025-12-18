@@ -81,7 +81,6 @@ target_include_directories(vgl PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/external/glew-cmake/include
   ${CMAKE_CURRENT_SOURCE_DIR}/external/AntTweakBar/TweakBar/include
   ${CMAKE_CURRENT_SOURCE_DIR}/external/tinyfd
-  ${CMAKE_CURRENT_SOURCE_DIR}/external/dirent/include
 )
 
 ## link *.lib
@@ -115,10 +114,11 @@ add_subdirectory(apps/app107)
 
 add_subdirectory(apps/app201)
 add_subdirectory(apps/app202)
+#add_subdirectory(apps/app203)
 
 add_subdirectory(apps/app301)
 add_subdirectory(apps/app302)
-
+#add_subdirectory(apps/app303)
 add_subdirectory(apps/app304)
 
 add_subdirectory(apps/app401)
