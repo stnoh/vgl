@@ -170,7 +170,7 @@ public:
 	}
 
 private:
-	bool updated;
+	bool updated = false;
 	float dt = 2e-4f;
 
 	float radius = 0.04f;

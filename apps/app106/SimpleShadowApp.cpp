@@ -306,8 +306,8 @@ private:
 	vgl::GLShader shader;
 
 	// global viewer
-	glm::quat GlobalViewRotation;
-	glm::vec3 GlobalViewPosition;
+	glm::quat GlobalViewRotation = glm::quat();
+	glm::vec3 GlobalViewPosition = glm::vec3();
 	void resetGlobalView() {
 		GlobalViewPosition = glm::vec3(0.0f, 0.0f, 4.0f);
 		GlobalViewRotation = glm::quat(glm::radians(glm::vec3(45.0f, 0.0f, 0.0f)));

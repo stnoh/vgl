@@ -25,8 +25,8 @@ private:
 	glm::fvec4 BgColor[2] = { glm::fvec4(0.5, 0.5, 0.5, 1.0), glm::fvec4(0.2, 0.3, 0.5, 1.0) };
 
 	// global viewer
-	glm::quat GlobalViewRotation;
-	glm::vec3 GlobalViewPosition;
+	glm::quat GlobalViewRotation = glm::quat();
+	glm::vec3 GlobalViewPosition = glm::vec3();
 	void resetGlobalView() {
 		GlobalViewPosition = glm::vec3(0.0f, 0.0f, 4.0f);
 		GlobalViewRotation = glm::quat(glm::radians(glm::vec3(45.0f, -37.5f, -30.0f)));
@@ -41,9 +41,9 @@ private:
 	}
 
 	// model matrix for 3D mesh
-	glm::quat ModelRotation;
-	glm::vec3 ModelPosition;
-	float     ModelUniScale;
+	glm::quat ModelRotation = glm::quat();
+	glm::vec3 ModelPosition = glm::vec3();;
+	float     ModelUniScale = 1.0f;
 	void resetModelMatrix()
 	{
 		ModelUniScale = 1.0f;

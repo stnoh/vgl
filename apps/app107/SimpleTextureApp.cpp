@@ -276,8 +276,8 @@ private:
 	bool show_wireframe = false;
 
 	// global viewer
-	glm::quat GlobalViewRotation;
-	glm::vec3 GlobalViewPosition;
+	glm::quat GlobalViewRotation = glm::quat();
+	glm::vec3 GlobalViewPosition = glm::vec3();
 	void resetGlobalView() {
 		GlobalViewPosition = glm::vec3(0.0f, 0.0f, 4.0f);
 		GlobalViewRotation = glm::quat(glm::radians(glm::vec3(30.0f, 0.0f, 0.0f)));

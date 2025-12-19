@@ -185,7 +185,7 @@ public:
 			faces_subdiv = faces_subdiv_new;
 		}
 
-		printf("subdivision level (%d): mesh (%4d, %4d)\n", N_subdiv, vertices_subdiv.size(), faces_subdiv.size() / 3);
+		printf("subdivision level (%d): mesh (%4d, %4d)\n", N_subdiv, (int)vertices_subdiv.size(), (int)faces_subdiv.size() / 3);
 
 		// in the end, compute vertex normals from triangles
 		normals_subdiv = vgl::ComputeVertexNormals(vertices_subdiv, faces_subdiv);
@@ -242,8 +242,8 @@ public:
 	}
 
 private:
-	glm::quat GlobalViewRotation;
-	glm::vec3 GlobalViewPosition;
+	glm::quat GlobalViewRotation = glm::quat();
+	glm::vec3 GlobalViewPosition = glm::vec3(0.0f, 0.0f, 4.0f);
 	void resetGlobalView() {
 		GlobalViewPosition = glm::vec3(0.0f, 0.0f, 4.0f);
 		GlobalViewRotation = glm::quat(glm::radians(glm::vec3(0.0f, 0.0f, 0.0f)));

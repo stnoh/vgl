@@ -282,13 +282,13 @@ private:
 		fov = 1.0f;
 		time_stamp = std::chrono::system_clock::now();
 	}
-	float center_x;
-	float center_y;
-	float fov;
+	float center_x = 0.0f;
+	float center_y = 0.0f;
+	float fov = 1.0f;
 
 	// reserve previous mouse position
-	int mouse_prev_x;
-	int mouse_prev_y;
+	int mouse_prev_x = 0;
+	int mouse_prev_y = 0;
 
 	std::chrono::system_clock::time_point time_stamp;
 
