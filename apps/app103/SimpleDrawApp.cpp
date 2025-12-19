@@ -34,12 +34,16 @@ public:
 		glEnd();
 	}
 
-	// override member functions
+	// override member function
 	bool Init()
 	{
 		glfwSetWindowTitle(window, "SimpleDrawApp");
 		TwDefine("Bar iconified=true"); // hide TwBar at initial 
 		
+		// set flags
+		//glEnable(GL_DEPTH_TEST);
+		//glEnable(GL_CULL_FACE);  // [CAUTION]
+
 		return true;
 	}
 };

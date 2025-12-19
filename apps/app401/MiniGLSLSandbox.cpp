@@ -210,8 +210,8 @@ public:
 		int diff_x = mouse_this_x - mouse_prev_x;
 		int diff_y = mouse_this_y - mouse_prev_y;
 
-		// left drag
-		if (mouse_button[0]) {
+		// right drag: move view (center)
+		if (mouse_button[1]) {
 			center_x -= fov * (float)diff_x / (float)height;
 			center_y += fov * (float)diff_y / (float)width * aspect;
 		}

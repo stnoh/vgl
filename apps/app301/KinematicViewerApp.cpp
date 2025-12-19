@@ -108,7 +108,7 @@ public:
 			ComputeIK(pos);
 		}
 
-		// right drag: move
+		// right drag: move view (center)
 #if 1
 		if (is_right_drag) {
 			if (!mouse_button[1]) is_right_drag = false;
