@@ -72,7 +72,7 @@ public:
 
 			glm::vec3 p = t1 * CP0 + t0 * CP2;
 			curve_points.push_back(p);
-			}
+		}
 	}
 
 	bool Update()

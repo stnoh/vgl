@@ -204,8 +204,8 @@ private:
 
 	bool is_right_drag = false;
 	bool is_middle_drag = false;
-	int mouse_prev_x;
-	int mouse_prev_y;
+	int mouse_prev_x = 0;
+	int mouse_prev_y = 0;
 
 	std::vector<Joint> joints = {
 		Joint(0.30f, 30.0f),
