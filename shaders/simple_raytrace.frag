@@ -6,9 +6,6 @@ const float PI = 3.1415926; // 32-bit floating point
 const float eps = 1e-6;
 const float inf = 1.0 / 0.0;
 
-const int LIGHT = 0;
-const int DIFFUSE = 1;
-
 struct Ray {
 	vec3 origin;
 	vec3 direction;
@@ -19,15 +16,14 @@ struct Sphere {
 	vec3  center;
 	vec3  emission;
 	vec3  color;
-	int   material;
 };
 
 const int NUM_SPHERES = 3;
 
 Sphere sphere(int i) {
-	if (i--==0) return	Sphere(1e5 , vec3(50., -1e5, 81.6), vec3(0.0), vec3( 0.75, 0.75, 0.75), DIFFUSE);
-	if (i--==0) return	Sphere(25.0, vec3(40., 25.0, 47.0), vec3(0.0), vec3( 0.85, 0.52, 0.12), DIFFUSE);
-				return	Sphere(1.0 , vec3(50., 81.6, 81.6), vec3(1.0), vec3( 1.00, 1.00, 1.00), LIGHT);
+	if (i--==0) return	Sphere(1e5 , vec3(50., -1e5, 81.6), vec3(0.0), vec3( 0.75, 0.75, 0.75) );
+	if (i--==0) return	Sphere(25.0, vec3(40., 25.0, 47.0), vec3(0.0), vec3( 0.85, 0.52, 0.12) );
+				return	Sphere(1.0 , vec3(50., 81.6, 81.6), vec3(1.0), vec3( 1.00, 1.00, 1.00) ); // light source
 }
 
 Ray generate_camera_ray(vec2 uv)
@@ -81,7 +77,7 @@ vec3 shade(Ray ray, int id, float t)
 	
 	Sphere S = sphere(id);
 
-	if (LIGHT==S.material) return S.emission;
+	if (0.0 < dot(S.emission, S.emission) ) return S.emission;
 
 	vec3 color = vec3(0.0);
 
