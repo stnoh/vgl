@@ -1,12 +1,14 @@
 uniform vec2 resolution;
 uniform float time;
 
-float random(vec2 uv)
-{
-	// https://www.npmjs.com/package/glsl-random?activeTab=code
-	return fract(sin(dot(uv, vec2(12.9898, 78.233))) * 43758.5453 * time);
-}
+float seed = 0.0;
+float rand() { return fract(sin(seed++) * 43758.5453123 * time); }
 
 void main(void) {
-	gl_FragColor = vec4(vec3(random(gl_FragCoord.xy/resolution.xy)), 1.0);
+	seed = time + resolution.y * gl_FragCoord.x / resolution.x + gl_FragCoord.y / resolution.y;
+
+	float r = rand();
+	float g = rand();
+	float b = rand();
+	gl_FragColor = vec4(r, g, b, 1.0);
 }

@@ -4,6 +4,8 @@
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
 
+#include <algorithm> // for std::min_element
+
 class CurveDrawingApp : public AppGLBase
 {
 public:
