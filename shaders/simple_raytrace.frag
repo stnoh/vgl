@@ -26,8 +26,7 @@ Sphere sphere(int i) {
 				return	Sphere(1.0 , vec3(50., 81.6, 81.6), vec3(1.0), vec3( 1.00, 1.00, 1.00) ); // light source
 }
 
-Ray generate_camera_ray(vec2 uv)
-{
+Ray generate_camera_ray(vec2 uv) {
 	// vectors to define camera coordinate
 	vec3 from = vec3(50.0, 40.8, 169.0);
 	vec3 to   = vec3(50.0, 40.0,  81.6);
@@ -71,8 +70,7 @@ int trace(Ray ray, out float t_min, int avoid) {
 	return id_min;
 }
 
-vec3 shade(Ray ray, int id, float t)
-{
+vec3 shade(Ray ray, int id, float t) {
 	if (-1 == id) return vec3(0.029, 0.071, 0.218); // sky color for gamma 2.2 (map to [0.2, 0.3, 0.5])
 	
 	Sphere S = sphere(id);
