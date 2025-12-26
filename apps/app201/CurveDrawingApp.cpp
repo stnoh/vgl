@@ -99,7 +99,7 @@ public:
 			if (mouse_button[0]) {
 
 				// Left Click
-				if (mouse_button[0] == 1) {
+				if (1 == mouse_button[0]) {
 					// pick the nearest point here
 					glm::vec3 pos = GetPos(mouse_this_x, mouse_this_y);
 					auto closest = std::min_element(control_points.begin(), control_points.end(),
@@ -114,8 +114,9 @@ public:
 				}
 
 				// Control + Left Click
-				if (mouse_button[0] == 3) {
+				if (3 == mouse_button[0]) {
 					control_points.push_back(GetPos(mouse_this_x, mouse_this_y));
+					drag_point_index = -1; // [quick fix] cancel dragging
 					RecomputeCurve();
 				}
 
