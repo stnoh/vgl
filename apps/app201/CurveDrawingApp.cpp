@@ -79,8 +79,6 @@ public:
 
 	bool Update()
 	{
-		bool updated = AppGLBase::Update();
-
 		auto GetPos = [&](int mouse_x, int mouse_y)->glm::vec3
 		{
 			float aspect = width / (float)height;
@@ -178,7 +176,7 @@ public:
 			mouse_prev_y = mouse_this_y;
 		}
 
-		return updated;
+		return true;
 	}
 
 	bool Init()
@@ -260,7 +258,6 @@ private:
 int main(int argc, char** argv)
 {
 	CurveDrawingApp app(480, 480);
-	app.SetInternalProcess(true);
 	app.run();
 	return EXIT_SUCCESS;
 }

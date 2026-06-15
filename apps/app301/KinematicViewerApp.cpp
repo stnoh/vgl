@@ -243,6 +243,6 @@ int main(int argc, char** argv)
 {
 	KinematicViewerApp app(480, 480);
 	app.SetInternalProcess(true);
-	app.run();
+	app.run(true);
 	return EXIT_SUCCESS;
 }

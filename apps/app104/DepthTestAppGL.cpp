@@ -159,7 +159,6 @@ private:
 int main(int argc, char** argv)
 {
 	DepthTestAppGL app(640, 480);
-	app.SetInternalProcess(false);
 	app.run();
 	return EXIT_SUCCESS;
 }

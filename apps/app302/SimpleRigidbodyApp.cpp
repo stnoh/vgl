@@ -190,6 +190,6 @@ int main(int argc, char** argv)
 {
 	SimpleRigidbodyApp app(512, 512);
 	app.SetInternalProcess(true);
-	app.run();
+	app.run(true);
 	return EXIT_SUCCESS;
 }

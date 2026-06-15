@@ -309,6 +309,6 @@ int main(int argc, char** argv)
 {
 	MiniGLSLSandbox app(640, 480);
 	app.SetInternalProcess(true);
-	app.run();
+	app.run(true);
 	return EXIT_SUCCESS;
 }

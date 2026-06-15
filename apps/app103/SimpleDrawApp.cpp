@@ -54,10 +54,7 @@ public:
 ///////////////////////////////////////////////////////////////////////////////
 int main(int argc, char** argv)
 {
-	SimpleDrawApp  app(640, 640);
-	
-	app.SetInternalProcess(false);
+	SimpleDrawApp app(640, 640);
 	app.run();
-
 	return EXIT_SUCCESS;
 }

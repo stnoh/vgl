@@ -176,9 +176,6 @@ void CameraFrustumViewerApp::End()
 int main(int argc, char** argv)
 {
 	CameraFrustumViewerApp app(1280, 640);
-
-	app.SetInternalProcess(false); // update only when it is dirty
 	app.run();
-
 	return EXIT_SUCCESS;
 }

@@ -303,7 +303,6 @@ private:
 int main(int argc, char** argv)
 {
 	TriMeshViewerApp app(640, 480);
-	app.SetInternalProcess(true);
 	app.run();
 	return EXIT_SUCCESS;
 }

@@ -16,7 +16,7 @@ public:
 	AppGLBase(const int width, const int height);
 	virtual ~AppGLBase();
 
-	bool run(const bool continousUpdate = true);
+	bool run(const bool continousUpdate = false);
 
 	// [MANDOTORY]
 	virtual void Draw(const int width, const int height) = 0;
@@ -39,7 +39,7 @@ protected:
 	GLFWwindow *window;
 	TwBar *bar;
 
-	bool internalProcess;
+	bool internalProcess = false;
 
 	int mouse_button[3] = { 0, 0, 0 }; // left, right, middle button
 	int mouse_this_x = 0, mouse_this_y = 0;

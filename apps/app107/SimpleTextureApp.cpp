@@ -291,7 +291,6 @@ private:
 int main(int argc, char** argv)
 {
 	SimpleTextureApp app(640, 480);
-	app.SetInternalProcess(true);
 	app.run();
 	return EXIT_SUCCESS;
 }

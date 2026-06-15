@@ -39,7 +39,6 @@ public:
 int main(int argc, char** argv)
 {
 	TestAppGL app(640, 480);
-	app.SetInternalProcess(false); // false: only updated when it is "dirty"
-	app.run();
+	app.run(true); // true: continuous update
 	return EXIT_SUCCESS;
 }
