@@ -183,7 +183,7 @@ public:
 
 	bool Init()
 	{
-		glfwSetWindowTitle(window, "SimpleTextureApp");
+		SetAppGLTitle("SimpleTextureApp");
 
 		// global viewer
 #if 1

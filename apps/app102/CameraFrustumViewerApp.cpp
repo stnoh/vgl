@@ -92,7 +92,7 @@ void CameraFrustumViewerApp::drawView3D(glm::mat4 proj, glm::mat4 view)
 ///////////////////////////////////////////////////////////////////////////////
 bool CameraFrustumViewerApp::Init()
 {
-	glfwSetWindowTitle(window, "CameraFrustumViewerApp"); // set window title
+	SetAppGLTitle("CameraFrustumViewerApp"); // set window title
 
 	// instantiate camera object
 	rendercam = new vgl::GLCamera();

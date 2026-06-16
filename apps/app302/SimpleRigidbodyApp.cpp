@@ -146,7 +146,7 @@ public:
 
 	bool Init()
 	{
-		glfwSetWindowTitle(window, "SimpleRigidbodyApp");
+		SetAppGLTitle("SimpleRigidbodyApp");
 		TwDefine("Bar iconified=true"); // hide TwBar at initial
 
 		TwAddVarRW(bar, "updated", TwType::TW_TYPE_BOOLCPP, &updated, "label='updated' ");

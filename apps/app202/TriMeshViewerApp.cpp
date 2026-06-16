@@ -193,7 +193,7 @@ public:
 
 	bool Init()
 	{
-		glfwSetWindowTitle(window, "TriMeshViewerApp");
+		SetAppGLTitle("TriMeshViewerApp");
 
 		TwAddButton(bar, "import_mesh", [](void* client) {
 			TriMeshViewerApp* _this = (TriMeshViewerApp*)client;

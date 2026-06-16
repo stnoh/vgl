@@ -35,9 +35,16 @@ public:
 	};
 	void SetInternalProcess(bool turnOn){ internalProcess = turnOn; }
 
+	void SetAppGLTitle(std::string _title) {
+		title = _title;
+		glfwSetWindowTitle(window, title.c_str());
+	}
+
 protected:
 	GLFWwindow *window;
 	TwBar *bar;
+
+	std::string title = "AppGLBase";
 
 	bool internalProcess = false;
 

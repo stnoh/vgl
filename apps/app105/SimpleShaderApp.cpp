@@ -142,7 +142,7 @@ public:
 
 	bool Init()
 	{
-		glfwSetWindowTitle(window, "SimpleShaderApp");
+		SetAppGLTitle("SimpleShaderApp");
 
 		// UI: AntTweakBar
 		TwAddVarRW(bar, "Light_dir", TwType::TW_TYPE_DIR3F, &L_position, "group='Global' label='Light_dir' open");

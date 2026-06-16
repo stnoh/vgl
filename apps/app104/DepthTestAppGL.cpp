@@ -89,7 +89,7 @@ public:
 	};
 
 	bool Init() {
-		glfwSetWindowTitle(window, "DepthTestApp");
+		SetAppGLTitle("DepthTestApp");
 
 		resetGlobalView();
 

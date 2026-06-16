@@ -272,7 +272,7 @@ public:
 
 	bool Init()
 	{
-		glfwSetWindowTitle(window, "StableFluidsApp");
+		SetAppGLTitle("StableFluidsApp");
 
 		TwAddButton(bar, "clear_data", [](void* client) {
 			StableFluidsApp* _this = (StableFluidsApp*)client; _this->clear_data();

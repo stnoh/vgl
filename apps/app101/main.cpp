@@ -25,7 +25,7 @@ public:
 	// override member function
 	bool Init()
 	{
-		glfwSetWindowTitle(window, "TestAppGL");
+		SetAppGLTitle("TestAppGL");
 		TwDefine("Bar iconified=true"); // hide TwBar at initialization
 
 		return true;

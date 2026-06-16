@@ -219,7 +219,7 @@ public:
 
 	bool Init()
 	{
-		glfwSetWindowTitle(window, "SimpleShadowApp");
+		SetAppGLTitle("SimpleShadowApp");
 
 		// global viewer
 #if 1

@@ -157,7 +157,7 @@ public:
 
 	bool Init()
 	{
-		glfwSetWindowTitle(window, "KinematicViewerApp");
+		SetAppGLTitle("KinematicViewerApp");
 		TwDefine("Bar iconified=true"); // hide TwBar at initial 
 #if 1
 		InitView();

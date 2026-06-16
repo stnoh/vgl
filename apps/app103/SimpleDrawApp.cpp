@@ -37,7 +37,7 @@ public:
 	// override member function
 	bool Init()
 	{
-		glfwSetWindowTitle(window, "SimpleDrawApp");
+		SetAppGLTitle("SimpleDrawApp");
 		TwDefine("Bar iconified=true"); // hide TwBar at initial 
 		
 		// set flags
