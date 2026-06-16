@@ -2,6 +2,8 @@
 
 ## 古い Visual Studio Community の入手について  
 
+最新バージョンは，次のサイトで入手可能である: [https://visualstudio.microsoft.com/vs/community/](https://visualstudio.microsoft.com/vs/community/)  
+
 年々，最新バージョンに合わせてアップデートをしているものの，本レポジトリは最初は Visual Studio 2019 を想定して作られたものであり，  
 最新の Visual Studio のサポートはあまり考慮していなかった．なので，過去のバージョンに戻す可能性も考慮している．  
 その際に問題なのは，恐らく過去バージョンの Visual Studio の入手であろう．  
