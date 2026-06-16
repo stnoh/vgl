@@ -190,6 +190,6 @@ int main(int argc, char** argv)
 {
 	SimpleRigidbodyApp app(512, 512);
 	app.SetInternalProcess(true);
-	app.run(true);
+	app.run(true, 0.0); // no FPS waiting for simulation
 	return EXIT_SUCCESS;
 }

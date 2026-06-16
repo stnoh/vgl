@@ -39,6 +39,6 @@ public:
 int main(int argc, char** argv)
 {
 	TestAppGL app(640, 480);
-	app.run(true); // true: continuous update
+	app.run(true, 0.0); // true: continuous update
 	return EXIT_SUCCESS;
 }

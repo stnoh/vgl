@@ -16,7 +16,7 @@ public:
 	AppGLBase(const int width, const int height);
 	virtual ~AppGLBase();
 
-	bool run(const bool continousUpdate = false);
+	bool run(const bool continousUpdate = false, const double targetFrameTime = 1e-3);
 
 	// [MANDOTORY]
 	virtual void Draw(const int width, const int height) = 0;

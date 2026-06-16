@@ -3,6 +3,7 @@ Application base class with GL context using GLFW with AntTweakBar
 Author: Seung-Tak Noh (seungtak.noh [at] gmail.com)
 ******************************************************************************/
 #include <vgl/AppGLBase.h>
+#include <thread>
 
 ///////////////////////////////////////////////////////////////////////////////
 // [C++ limitation] custom callback
@@ -151,20 +152,49 @@ AppGLBase::~AppGLBase()
 ///////////////////////////////////////////////////////////////////////////////
 // main routine
 ///////////////////////////////////////////////////////////////////////////////
-bool AppGLBase::run(const bool continousUpdate)
+bool AppGLBase::run(const bool continousUpdate, const double targetFrameTime)
 {
 	if (!Init()) {
 		End();
 		return false;
 	}
 
+	double lastTime = glfwGetTime();
+	int    nbFrames = 0;
+
 	for (;;)
 	{
+		double frameStartTime = glfwGetTime();
+
 		bool updated = Update();
 		if (is_dirty || updated) windowRefreshFun(window);
 
 		// update
-		if(continousUpdate) glfwPollEvents();
+		if (continousUpdate) {
+			glfwPollEvents();
+
+			if (0.0 < targetFrameTime) {
+				double elapsed = glfwGetTime() - frameStartTime;
+				double waitTime = targetFrameTime - elapsed;
+
+				// wait to suppress exceeded render call
+				if (waitTime > 0.0) {
+					std::this_thread::sleep_for(std::chrono::duration<double>(waitTime));
+				}
+
+				// show FPS in title for each second
+				nbFrames++;
+				double currentTime = glfwGetTime();
+				if (currentTime - lastTime >= 1.0) {
+					char buf[256];
+					sprintf_s(buf, "%s %.2lf [fps]", title.c_str(), nbFrames / (currentTime - lastTime));
+					glfwSetWindowTitle(window, buf);
+
+					nbFrames = 0;
+					lastTime = currentTime;
+				}
+			}
+		}
 		else glfwWaitEvents();
 
 		if (glfwWindowShouldClose(window)) break;
