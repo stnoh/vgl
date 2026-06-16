@@ -50,6 +50,11 @@ void CameraFrustumViewerApp::drawView3D(glm::mat4 proj, glm::mat4 view)
 	glMatrixMode(GL_MODELVIEW);  glLoadMatrixf(glm::value_ptr(view));
 	vgl::setLight(GL_LIGHT0, glm::vec4(1.0f, 1.0f, 1.0f, 0.0f)); // default light
 
+	// draw ground grid on Y-plane as black color
+	glColor3f(0.0f, 0.0f, 0.0f);
+	glLineWidth(1.0f);
+	vgl::drawGridXZ(10.0f, 10);
+
 	// model matrix
 	glm::mat4 model = glm::translate(glm::mat4(1.0f), ModelPosition) * glm::mat4(ModelRotation);
 	model = glm::scale(model, glm::vec3(ModelUniScale));
@@ -65,11 +70,6 @@ void CameraFrustumViewerApp::drawView3D(glm::mat4 proj, glm::mat4 view)
 		glEnable(GL_LIGHTING);
 		vgl::drawAxes(1.0f);
 		glDisable(GL_LIGHTING);
-
-		// draw grid on Y-plane as black color
-		glColor3f(0.0f, 0.0f, 0.0f);
-		glLineWidth(1.0f);
-		vgl::drawGridXZ(10.0f, 10);
 
 		glPopMatrix();
 	}
@@ -120,17 +120,30 @@ bool CameraFrustumViewerApp::Init()
 	TwAddVarRW(bar, "Global-posZ", TwType::TW_TYPE_FLOAT, &GlobalViewPosition.z, "group='Global' label='posZ' step=0.01");
 #endif
 
+	// model matrix related properties (axes)
+#if 1
+	TwAddButton(bar, "Model-init", [](void* client) {
+		CameraFrustumViewerApp* _this = (CameraFrustumViewerApp*)client; _this->resetModelMatrix();
+	}, this, "group='Model' label='init' ");
+	TwAddVarRW(bar, "Model-rot", TwType::TW_TYPE_QUAT4F, &ModelRotation  , "group='Model' label='rot'  open");
+	TwAddVarRW(bar, "Model-posX", TwType::TW_TYPE_FLOAT, &ModelPosition.x, "group='Model' label='posX' step=0.01");
+	TwAddVarRW(bar, "Model-posY", TwType::TW_TYPE_FLOAT, &ModelPosition.y, "group='Model' label='posY' step=0.01");
+	TwAddVarRW(bar, "Model-posZ", TwType::TW_TYPE_FLOAT, &ModelPosition.z, "group='Model' label='posZ' step=0.01");
+
+	TwDefine("Bar/Model opened=false"); // close group as default
+#endif
+
 	// view matrix related properties (local camera)
 #if 1
-	TwAddButton(bar, "Local-init", [](void *client) {
+	TwAddButton(bar, "View-init", [](void *client) {
 		CameraFrustumViewerApp* _this = (CameraFrustumViewerApp*)client; _this->resetCameraView();
-	}, this, "group='Local' label='init' ");
-	TwAddVarRW(bar, "Local-rot" , TwType::TW_TYPE_QUAT4F, &rendercam->rotation  , "group='Local' label='rot'  open");
-	TwAddVarRW(bar, "Local-posX", TwType::TW_TYPE_FLOAT , &rendercam->position.x, "group='Local' label='posX' step=0.01");
-	TwAddVarRW(bar, "Local-posY", TwType::TW_TYPE_FLOAT , &rendercam->position.y, "group='Local' label='posY' step=0.01");
-	TwAddVarRW(bar, "Local-posZ", TwType::TW_TYPE_FLOAT , &rendercam->position.z, "group='Local' label='posZ' step=0.01");
+	}, this, "group='View' label='init' ");
+	TwAddVarRW(bar, "View-rot" , TwType::TW_TYPE_QUAT4F, &rendercam->rotation  , "group='View' label='rot'  open");
+	TwAddVarRW(bar, "View-posX", TwType::TW_TYPE_FLOAT , &rendercam->position.x, "group='View' label='posX' step=0.01");
+	TwAddVarRW(bar, "View-posY", TwType::TW_TYPE_FLOAT , &rendercam->position.y, "group='View' label='posY' step=0.01");
+	TwAddVarRW(bar, "View-posZ", TwType::TW_TYPE_FLOAT , &rendercam->position.z, "group='View' label='posZ' step=0.01");
 
-	TwDefine("Bar/Local opened=false"); // close group as default
+	TwDefine("Bar/View opened=false"); // close group as default
 #endif
 
 	// projection matrix related properties
