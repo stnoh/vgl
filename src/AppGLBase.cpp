@@ -61,7 +61,7 @@ AppGLBase::AppGLBase(const int width, const int height)
 		iOpenGLMajor, iOpenGLMinor, iOpenGLRevision);
 
 	glfwMakeContextCurrent(window);
-	glfwSwapInterval(0);
+	glfwSwapInterval(0); // [CAUTION] glfwSwapInterval(1); is recommended
 
 	// initialize GL extension wrangler
 	const GLenum err = glewInit();

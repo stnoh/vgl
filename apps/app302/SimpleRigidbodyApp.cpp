@@ -70,7 +70,7 @@ public:
 				position[i] = p + v * dt;
 			}
 			
-			// simple collision detection
+			// collision detection for all pairs: i:[0..N-1] to j:[i+1..N]
 			for (int j = 0; j < N - 1; j++)
 			{
 				glm::vec2 p_j = position[j];

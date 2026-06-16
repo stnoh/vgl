@@ -308,7 +308,7 @@ private:
 	bool show_velocity = true;
 	bool show_grid     = true;
 
-	int mouse_prev_x, mouse_prev_y;
+	int mouse_prev_x = 0, mouse_prev_y = 0;
 
 	// default simulation parameters
 	const int N = 64;
@@ -319,8 +319,8 @@ private:
 	float source = 100.0f; 
 
 	// simulation region (volume)
-	float *u, *v, *u_prev, *v_prev;
-	float *dens, *dens_prev;
+	float* u = nullptr, * v = nullptr, * u_prev = nullptr, * v_prev = nullptr;
+	float* dens = nullptr, * dens_prev = nullptr;
 };
 
 
