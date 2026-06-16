@@ -1,5 +1,20 @@
 # 備忘録
 
+## 古い Visual Studio Community の入手について  
+
+年々，最新バージョンに合わせてアップデートをしているものの，本レポジトリは最初は Visual Studio 2019 を想定して作られたものであり，  
+最新の Visual Studio のサポートはあまり考慮していなかった．なので，過去のバージョンに戻す可能性も考慮している．  
+その際に問題なのは，恐らく過去バージョンの Visual Studio の入手であろう．  
+
+Visual Studio Community は最新バージョンが正式にリリースされると，既存バージョンへの公式的なリンクは消すようになっている．  
+しかし，何時途切れるか分からないものの，しばらくの間はインストールを防がず，辿っていけばインストール自体は可能になる．  
+以下はそのようなインストーラへのリンクである:  
+
+- Visual Studio 2022 [https://aka.ms/vs/17/release/vs_community.exe](https://aka.ms/vs/17/release/vs_community.exe)  
+- Visual Studio 2019 [https://aka.ms/vs/16/release/vs_community.exe](https://aka.ms/vs/16/release/vs_community.exe)  
+- Visual Studio 2017 [https://aka.ms/vs/15/release/vs_community.exe](https://aka.ms/vs/15/release/vs_community.exe)  
+
+
 ## 他環境でのビルド
 
 ### Ubuntu + GCC

@@ -2,7 +2,7 @@
 # CMake-based build system for vgl
 # Author: Seung-Tak Noh (seungtak.noh@gmail.com)
 ##############################################################################
-cmake_minimum_required (VERSION 3.1)
+cmake_minimum_required (VERSION 2.8.12...4.0)
 project ("vgl" LANGUAGES CXX)
 
 ########################################
