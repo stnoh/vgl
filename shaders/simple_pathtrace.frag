@@ -39,6 +39,7 @@ struct Sphere {
 };
 
 const int NUM_SPHERES = 9;
+const int LIGHT_ID = 8;
 
 Sphere sphere(int i) {
 	if (i--==0) return Sphere(1e5, vec3( 1e5+1 ,40.8,81.6), vec3(0.0), vec3(0.75,0.25,0.25), DIFFUSE);
@@ -122,14 +123,14 @@ vec3 radiance(Ray ray) {
 		vec3 n = normalize(p - obj.center);
 		vec3 nl = sign(-dot(n, ray.direction)) * n;
 
+		// stop ray tracing at the emitted object
+		if (id == LIGHT_ID) {
+			color += beta * obj.emission;
+			break;
+		}
+
 		if (DIFFUSE==obj.material) {
-			vec3 e = vec3(0.0);
-
-			// [TODO] next event estimation
-
-			// accumulate radiance and throughput
-			color += beta * (obj.emission + obj.color * e);
-			beta  *= obj.color;
+			beta *= obj.color;
 
 			// determine next ray direction from random uniform sampling
 			float r2 = rand();
@@ -139,8 +140,7 @@ vec3 radiance(Ray ray) {
 			ray = Ray(p, dir);
 		}
 		else if (MIRROR==obj.material) {
-			color += beta * obj.emission;
-			beta  *= obj.color;
+			beta *= obj.color;
 
 			ray = Ray(p, reflect(ray.direction, n));
 		}
