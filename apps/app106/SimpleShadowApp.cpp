@@ -204,7 +204,7 @@ public:
 
 		// texture for "depth"
 		fbo->DrawFBO([&] {
-			DrawScene(proj_light, view_light, true, NULL);
+			DrawScene(proj_light, view_light, true, 0);
 		});
 
 		// 2nd pass: render from "camera"

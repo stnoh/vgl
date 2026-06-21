@@ -187,7 +187,7 @@ bool AppGLBase::run(const bool continousUpdate, const double targetFrameTime)
 				double currentTime = glfwGetTime();
 				if (currentTime - lastTime >= 1.0) {
 					char buf[256];
-					sprintf_s(buf, "%s %.2lf [fps]", title.c_str(), nbFrames / (currentTime - lastTime));
+					sprintf(buf, "%s %.2lf [fps]", title.c_str(), nbFrames / (currentTime - lastTime));
 					glfwSetWindowTitle(window, buf);
 
 					nbFrames = 0;

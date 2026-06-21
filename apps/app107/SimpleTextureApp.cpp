@@ -257,9 +257,9 @@ public:
 
 	void End()
 	{
-		if (NULL != tex2D) {
+		if (0 != tex2D) {
 			glDeleteTextures(1, &tex2D);
-			tex2D = NULL;
+			tex2D = 0;
 		}
 	}
 
@@ -267,7 +267,7 @@ private:
 	vgl::GLShader shader;
 	vgl::PlaneXY  plane_xy;
 
-	GLuint tex2D = NULL;
+	GLuint tex2D = 0;
 
 	glm::vec4 L_position = glm::vec4(0, 3, 0.1, 0);
 
