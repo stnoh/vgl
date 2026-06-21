@@ -9,6 +9,7 @@ uniform vec2 resolution;
 
 const int SPP = 16;
 const int MAXDEPTH = 6;
+const bool useNEE = false;
 
 const float PI     = 3.1415926; // 32-bit floating point
 const float TWO_PI = 2.0 * PI;
@@ -97,6 +98,71 @@ int trace(Ray ray, out float t_min, int avoid) {
 	return id_min;
 }
 
+vec3 align_to_vector(vec3 z_axis, vec3 local_dir) {
+	vec3 helper = abs(z_axis.x) > 0.9 ? vec3(0.0, 1.0, 0.0) : vec3(1.0, 0.0, 0.0);
+	vec3 x_axis = normalize(cross(helper, z_axis));
+	vec3 y_axis = cross(z_axis, x_axis);
+
+	return local_dir.x * x_axis + local_dir.y * y_axis + local_dir.z * z_axis;
+}
+
+float get_light_pdf(vec3 p, Sphere light, out float cos_theta, out vec3 z_axis) {
+	vec3 to_light_center = light.center - p;
+	float d2 = dot(to_light_center, to_light_center);
+	float r2 = light.radius * light.radius;
+
+	if (d2 <= r2) return 0.0;
+
+	// normalized direction and maximum opening angle to the cone
+	z_axis = to_light_center / sqrt(d2);
+	cos_theta = sqrt(1.0 - r2 / d2);
+	return 1.0 / (TWO_PI * (1.0 - cos_theta));
+}
+
+vec3 NEE(vec3 p, vec3 n, int id, int id_light, out vec3 out_dir, out float out_pdf) {
+
+	// initialize output
+	out_dir = vec3(0.0);
+	out_pdf = 0.0;
+
+	Sphere light = sphere(id_light);
+
+	// get the maximum opening angle of cone in the hemisphere
+	float cos_theta_max;
+	vec3 z_axis;
+	out_pdf = get_light_pdf(p, light, cos_theta_max, z_axis);
+
+	if (out_pdf <= 0.0) return vec3(0.0);
+
+	// uniform sampling in the cone
+	float u1 = rand();
+	float u2 = rand();
+	float cos_theta = 1.0 - u1 * (1.0 - cos_theta_max);
+	float sin_theta = sqrt(1.0 - cos_theta * cos_theta);
+	float phi = TWO_PI * u2;
+
+	vec3 local_dir = vec3(sin_theta * cos(phi), sin_theta * sin(phi), cos_theta);
+	out_dir = align_to_vector(z_axis, local_dir);
+
+	if (dot(n, out_dir) <= 0.0) return vec3(0.0);
+
+	// check shadow ray
+	Ray ray = Ray(p, out_dir);
+	float t;
+	id = trace(ray, t, id);
+	if (id_light != id) return vec3(0.0);
+
+	// compute pdf and radiance by NEE
+	return light.emission * cos_theta_max / out_pdf;
+}
+
+float mis_weight(float pdf_a, float pdf_b) {
+	// Veach's power heuristic
+	float  pdf_a2 = pdf_a * pdf_a;
+	float  pdf_b2 = pdf_b * pdf_b;
+	return pdf_a2 / (pdf_a2 + pdf_b2);
+}
+
 vec3 sample(vec3 d, float phi, float sin_a, float cos_a) {
 	// random sample point (=direction) on a hemisphere
 	vec3 w = normalize(d); // hemisphere's Z(up)-vector
@@ -110,6 +176,10 @@ vec3 radiance(Ray ray) {
 	vec3 color = vec3(0.0); // radiance accumulator
 	vec3 beta  = vec3(1.0); // pass throughput weight
 	int id = -1;
+
+	// additional variables for NEE
+	bool  last_ray_was_specular = true; 
+	float last_bsdf_pdf = 1.0; 
 
 	// bounded loop ray tracing instead of its recursive version
 	for (int depth=0; depth < MAXDEPTH; depth++) {
@@ -125,11 +195,41 @@ vec3 radiance(Ray ray) {
 
 		// stop ray tracing at the emitted object
 		if (id == LIGHT_ID) {
-			color += beta * obj.emission;
+			
+			if (!useNEE || last_ray_was_specular) {
+				color += beta * obj.emission;
+			}
+			else{
+				// cancel the doubled light integration
+				float cos_theta;
+				vec3  z_axis;
+				float pdf_NEE = get_light_pdf(p, sphere(LIGHT_ID), cos_theta, z_axis);
+
+				float weight = mis_weight(last_bsdf_pdf, pdf_NEE);
+				color += beta * obj.emission * weight;
+			}
+
 			break;
 		}
 
 		if (DIFFUSE==obj.material) {
+
+			// next event estimation
+			if (useNEE){
+				vec3  dir_light;
+				float pdf_NEE;
+
+				vec3  e_NEE = NEE(p, nl, id, LIGHT_ID, dir_light, pdf_NEE);
+
+				if (0.0 < pdf_NEE) {
+					float cos_theta = clamp(dot(nl, dir_light), 0.0, 1.0);
+					float pdf_bsdf  = cos_theta / PI;
+
+					float weight = mis_weight(pdf_NEE, pdf_bsdf);
+					color += beta * e_NEE / PI * obj.color * weight;
+				}
+			}
+
 			beta *= obj.color;
 
 			// determine next ray direction from random uniform sampling
@@ -137,12 +237,17 @@ vec3 radiance(Ray ray) {
 			float sin_a = sqrt(r2);
 			float cos_a = sqrt(1.0-r2);
 			vec3 dir = sample(nl, TWO_PI * rand(), sin_a, cos_a);
+
+			// update ray and other data
 			ray = Ray(p, dir);
+			last_ray_was_specular = false; 
+			last_bsdf_pdf = cos_a / PI; 
 		}
 		else if (MIRROR==obj.material) {
 			beta *= obj.color;
 
 			ray = Ray(p, reflect(ray.direction, n));
+			last_ray_was_specular = true;
 		}
 		else if (GLASS==obj.material) {
 			// incident angle
@@ -183,6 +288,8 @@ vec3 radiance(Ray ray) {
 					ray = Ray(p, dir_t);
 				}
 			}
+
+			last_ray_was_specular = true;
 		}
 		else {
 			break; // fallback
@@ -205,14 +312,22 @@ void main(void) {
 	for (int i=0;i<SPP;i++) {
 		color += radiance(ray);
 	}
+	
+	const float gamma = 2.2;
+	color /= float(SPP);
+
+	// [quick checking] only show the result of this frame
+	if (false) {
+		gl_FragColor = vec4(pow(clamp(color, 0.0, 1.0), vec3(1.0 / gamma)), 1.0);
+		return;
+	}
 
 	// integration with previously computed color
 	vec4 previous = texture2D(backbuffer, gl_FragCoord.xy / resolution.xy);
 	float weight = clamp(255.0 * previous.a, 0.0, 254.0); // [0.0:254.0]
 	
 	// gamma correction for PBR
-	float gamma = 2.2;
-	color = (color / float(SPP) + pow(previous.rgb, vec3(gamma)) * weight) / (1.0 + weight);
+	color = (color + pow(previous.rgb, vec3(gamma)) * weight) / (1.0 + weight);
 	color = pow(clamp(color, 0.0, 1.0), vec3(1.0 / gamma));
 	gl_FragColor = vec4(color, (weight + 1.0) / 255.0);
 }
