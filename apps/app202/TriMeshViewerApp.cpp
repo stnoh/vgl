@@ -3,9 +3,13 @@
 #include <vgl/objFileIO.h>
 #include <vgl/TriMesh.h>
 
+#include <vgl/FBO.h>
+#include <vgl/plyFileIO.h>
+
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
 
+#include <vector>
 #include <set>
 
 #include <tinyfiledialogs.h>
@@ -191,6 +195,52 @@ public:
 		normals_subdiv = vgl::ComputeVertexNormals(vertices_subdiv, faces_subdiv);
 	}
 
+	void PartialScan()
+	{
+		offscreenFBO->Resize(width, height);
+		offscreenFBO->DrawFBO([&] {
+
+			// rendering & get the screen info
+			Draw(width, height);
+			offscreenFBO->CopyColorToBuffer();
+			offscreenFBO->CopyDepthToBuffer();
+
+			// inverse projection to get 3D information
+			glm::mat4 proj = glm::infinitePerspective(glm::radians(53.1301f), width / (float)height, 0.1f);
+			auto data = offscreenFBO->ConvertDepthImage2PointCloudWithColor(glm::inverse(proj));
+			//printf("size = %d\n", (int)data.first.size());
+
+			// 3D rigid transformation to synchronize the coordinate system
+			glm::mat4 view = glm::translate(glm::mat4(1.0f), -GlobalViewPosition);
+			view = view * glm::mat4_cast(GlobalViewRotation);
+			view = glm::inverse(view);
+
+			// normal as view direction
+			glm::vec3 n = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
+			n = view * glm::vec4(n, 1.0f);
+
+			std::vector<glm::vec3> normals;
+			std::vector<glm::vec3> converted;
+			for (auto p : data.first) {
+				converted.push_back(view * glm::vec4(p, 1.0f));
+				normals.push_back(n); // [TEMPORARY] normal as view direction
+			}
+
+			// export point cloud to .ply file
+			char const* filterPatterns[1] = { "*.ply" };
+			char* filepath = tinyfd_saveFileDialog(
+				"Write .ply point cloud file",
+				"./partial.ply", 1, filterPatterns, NULL);
+
+			if (filepath)
+			{
+				printf("filepath: %s\n", filepath);
+
+				vgl::WritePointCloudPly(filepath, converted, normals, data.second);
+			}
+		});
+	}
+
 	bool Init()
 	{
 		SetAppGLTitle("TriMeshViewerApp");
@@ -203,6 +253,12 @@ public:
 			TriMeshViewerApp* _this = (TriMeshViewerApp*)client;
 			_this->SaveObjFile();
 		}, this, " ");
+
+		TwAddButton(bar, "Partial scan", [](void* client) {
+			TriMeshViewerApp* _this = (TriMeshViewerApp*)client;
+			_this->PartialScan();
+		}, this, "group='Global' label='Partial scan' ");
+
 #if 1
 		TwAddButton(bar, "Global-init", [](void* client) {
 			TriMeshViewerApp* _this = (TriMeshViewerApp*)client;
@@ -229,6 +285,8 @@ public:
 
 		resetGlobalView();
 
+		offscreenFBO = new vgl::FBO();
+
 		// set hidden surface removal flags
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_CULL_FACE);
@@ -239,6 +297,10 @@ public:
 		glPolygonOffset(1.0f, 1.0f);
 
 		return true;
+	}
+
+	void End() {
+		delete offscreenFBO; offscreenFBO = nullptr;
 	}
 
 private:
@@ -294,6 +356,9 @@ private:
 	std::vector<glm::vec3> normals_subdiv;
 	std::vector<glm::uint> faces_subdiv;
 	int N_subdiv = 0;
+
+	// for "partial scan"
+	vgl::FBO* offscreenFBO = nullptr;
 };
 
 

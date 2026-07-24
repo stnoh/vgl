@@ -21,7 +21,7 @@ FBO::FBO(const int width, const int height)
 	// render buffer for color image
 	glGenRenderbuffers(1, &rboColor);
 	glBindRenderbuffer(GL_RENDERBUFFER, rboColor);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA32F, width, height); // for single-precision floating color
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, width, height); // for single-precision floating color
 
 	// render buffer for depth image
 	glGenRenderbuffers(1, &rboDepth);
@@ -33,7 +33,7 @@ FBO::FBO(const int width, const int height)
 	glGenFramebuffers(1, &fbo);
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 	glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, rboColor);
-	glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
+	glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT , GL_RENDERBUFFER, rboDepth);
 
 	// check validity of framebuffer (should be OK)
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
@@ -43,18 +43,6 @@ FBO::FBO(const int width, const int height)
 FBO::~FBO()
 {
 	Disable(); // deallocate before removing
-
-	// release buffers if exist
-	if (nullptr != buffer_color)
-	{
-		delete buffer_color;
-		buffer_color = nullptr;
-	}
-	if (nullptr != buffer_depth)
-	{
-		delete buffer_depth;
-		buffer_depth = nullptr;
-	}
 
 	// release render buffers & frame buffer
 	glDeleteRenderbuffers(1, &rboColor);
@@ -68,14 +56,26 @@ FBO::~FBO()
 ///////////////////////////////////////////////////////////////////////////////
 void FBO::Enable()
 {
-	// just enable to use framebuffer
+	// enable to use framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 	glViewport(0, 0, width, height);
 }
 void FBO::Disable()
 {
-	// just disable framebuffer
+	// disable framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	// release buffers if exist
+	if (nullptr != buffer_color)
+	{
+		delete buffer_color;
+		buffer_color = nullptr;
+	}
+	if (nullptr != buffer_depth)
+	{
+		delete buffer_depth;
+		buffer_depth = nullptr;
+	}
 }
 
 bool FBO::Resize(const int width, const int height)
@@ -99,7 +99,7 @@ bool FBO::Resize(const int width, const int height)
 
 
 ///////////////////////////////////////////////////////////////////////////////
-// copy data from GPU memory
+// copy data from GPU memory to CPU memory
 ///////////////////////////////////////////////////////////////////////////////
 void FBO::CopyColorToBuffer()
 {
