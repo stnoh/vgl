@@ -48,6 +48,7 @@ Ubuntu や WSL でのビルド可能性は保証されない．
 - app105: SimpleShaderApp, Gouraud shader の例題プログラム．  
 - app106: SimpleShadowApp, GLSL による Shadow map の例題プログラム．  
 - app107: SimpleTextureApp, 法線マップの例題プログラム．  
+- app108: EnvMappingApp, 環境マップとしてキューブマップを活用する例題プログラム．  
 
 ### Basic modeling (形状の扱い)  
 
