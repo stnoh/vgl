@@ -81,6 +81,7 @@ target_include_directories(vgl PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/external/glew-cmake/include
   ${CMAKE_CURRENT_SOURCE_DIR}/external/AntTweakBar/TweakBar/include
   ${CMAKE_CURRENT_SOURCE_DIR}/external/tinyfd
+  ${CMAKE_CURRENT_SOURCE_DIR}/external/stb
 )
 
 ## link *.lib

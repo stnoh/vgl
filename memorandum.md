@@ -91,7 +91,9 @@ Visual Studio Community は最新バージョンが正式にリリースされ�
 
 - [tinyfiledialog](https://sourceforge.net/projects/tinyfiledialogs/): 環境依存しない File Dialog 用のGUIツール．  
   + このライブラリは現在git submoduleの形で入手が困難なため，直接ファイルを取り入れている(zlib/libpng license)．  
-
+- [stb](https://github.com/nothings/stb): 環境依存しない画像読込み・書き込みライブラリ．  
+  + 近年セキュリティ問題が報告されているものの，C言語特有の仕様が原因であり，教育用途の単純利用では問題ないと判断されるため使用．  
+  + 現在は stb_image.h, stb_image_resize2.h, stb_write.h のみ含んでいる．  
 
 
 ### 使用中止となったライブラリ
@@ -132,15 +134,6 @@ Type: AntTweakBarの代わりとして使えるかも知れない．
 
 - [✔] Modern GUI  
 - [△] 情報がちょっと足りない  
-
-
-#### [stb](https://github.com/nothings/stb)  
-
-Type: image loader
-
-- かの有名な``stb_image.h``の元となるライブラリ．  
-- [✔] header-only library: ヘッダのみで処理可能な，最大の利点  
-- [✘] 2023年当たりにセキュリティ問題が多く報告され，まだ完璧には直っていないようだが，教育用途の単純利用ならばそこまで問題ないと思われる．  
 
 
 #### [libgd](https://github.com/libgd/libgd)
