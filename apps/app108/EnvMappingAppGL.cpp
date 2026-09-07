@@ -11,6 +11,9 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include <stb_image_write.h>
+
 const char* vertShader_modern = R"(
 #version 330 
 layout(location=0) in vec3 vPosition;
@@ -114,6 +117,17 @@ void main()
 class EnvMappingAppGL : public AppGLBase
 {
 public:
+
+	// synchronize naming in https://www.humus.name/index.php?page=Textures
+	std::vector<std::string> files{
+		"posx.jpg",
+		"negx.jpg",
+		"posy.jpg",
+		"negy.jpg",
+		"posz.jpg",
+		"negz.jpg"
+	};
+
 	EnvMappingAppGL(const int width, const int height) : AppGLBase(width, height) {};
 
 	// mandatory callback
@@ -235,6 +249,7 @@ public:
 			// set texture for the face
 			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + n, 0, GL_RGB,
 				W, H, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+			//stbi_write_jpg(files[n].c_str(), W, H, 3, data, 100); // [TEMPORARY] output rendered image if needed
 
 			// release image data
 			free(data);
@@ -260,16 +275,6 @@ public:
 
 		if (dirpath)
 		{
-			// synchronize naming in https://www.humus.name/index.php?page=Textures
-			std::vector<std::string> files{
-				"posx.jpg",
-				"negx.jpg",
-				"posy.jpg",
-				"negy.jpg",
-				"posz.jpg",
-				"negz.jpg"
-			};
-
 			// cubemap
 			glEnable(GL_TEXTURE_CUBE_MAP);
 			glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap);
@@ -282,7 +287,7 @@ public:
 
 				// load image and set texture
 				int w, h, c;
-				unsigned char* data = stbi_load(buf, &w, &h, &c, STBI_rgb);
+				GLubyte* data = stbi_load(buf, &w, &h, &c, STBI_rgb);
 				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + n, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 				stbi_image_free(data);
 			}
@@ -305,7 +310,7 @@ public:
 		{
 			// load image from file
 			int w, h, c;
-			unsigned char* data = stbi_load(filepath, &w, &h, &c, STBI_rgb);
+			GLubyte* data = stbi_load(filepath, &w, &h, &c, STBI_rgb);
 
 			GLuint equirect;
 			glEnable(GL_TEXTURE_2D);
@@ -375,6 +380,12 @@ public:
 						glVertex2f(+1.0f, -1.0f);
 						glEnd();
 					});
+
+					// [TEMPORARY] output rendered image if needed
+					/*
+					offscreen_FBO->CopyColorToBuffer();
+					stbi_write_jpg(files[n].c_str(), W, H, 3, offscreen_FBO->buffer_color, 100);
+					//*/
 				});
 			}
 
