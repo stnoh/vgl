@@ -48,13 +48,15 @@ public:
 		glm::mat4 ProjViewModel, const std::vector<glm::vec3>& model_verts,
 		const float threshold = 5e-3);
 
+	GLubyte* buffer_color = nullptr;
+	GLfloat* buffer_depth = nullptr;
+
+	glm::uvec2 GetImageSize() { return glm::uvec2(width, height); }
+
 private:
 	GLuint fbo;
 	GLuint rboColor;
 	GLuint rboDepth;
-
-	GLubyte* buffer_color = nullptr;
-	GLfloat* buffer_depth = nullptr;
 
 	int width;
 	int height;
