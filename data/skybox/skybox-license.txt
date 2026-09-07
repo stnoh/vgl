@@ -1,0 +1,2 @@
+Downloaded from GitHub repository: https://github.com/JoeyDeVries/LearnOpenGL/tree/master/resources/textures/skybox (License: CC BY-NC-4.0)
+Renamed for compatibility with [humus Texture](https://www.humus.name/index.php?page=Textures)  
