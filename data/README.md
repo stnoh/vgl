@@ -19,3 +19,12 @@
   - [File:Texel netherland beach equirectangular.png
 ](https://commons.wikimedia.org/wiki/File:Texel_netherland_beach_equirectangular.png)
   - 容量削減のため，1280x640のサイズをダウンロードした上，jpgで保存している．  
+
+
+## VisMale
+
+- このファイルは，Matias Lavik氏の[UnityVolumeRendering](https://github.com/mlavik1/UnityVolumeRendering/)から持ってきたものである．  
+  なお，それまたmattatz()氏の[unity-volume-rendering](https://github.com/mattatz/unity-volume-rendering)から持ってきている．  
+  詳細については [VisMale-license.txt](./VisMale-license.txt) を参照すること．  
+  なお，上記言及された２つのレポジトリや，そこに言及されている内容もよい勉強になるのでお奨めする．  
+
