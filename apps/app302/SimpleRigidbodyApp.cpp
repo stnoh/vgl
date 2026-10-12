@@ -87,12 +87,16 @@ public:
 
 						glm::vec2 v_i = velocity[i];
 						glm::vec2 v_j = velocity[j];
-						glm::vec2 v_ij = v_i - v_j;
+						glm::vec2 v_ij = v_j - v_i;
+
+						float inv_m_i = inv_mass[i];
+						float inv_m_j = inv_mass[j];
 
 						float v_dot_n = glm::dot(v_ij, n);
+						glm::vec2 J = -(1.0f + e) * v_dot_n * n / (inv_m_i + inv_m_j);
 
-						velocity[i] = v_i - v_dot_n * n;
-						velocity[j] = v_j + v_dot_n * n;
+						velocity[i] = v_i - inv_m_i * J;
+						velocity[j] = v_j + inv_m_j * J;
 
 						// position correction to avoid penetration
 						position[i] += 0.5f * d_p * n;
@@ -126,7 +130,8 @@ public:
 		// (re)initialize array in advance
 		position = std::vector<glm::vec2>(N);
 		velocity = std::vector<glm::vec2>(N);
-		color    = std::vector<glm::vec4>(N);
+		inv_mass = std::vector<float>(N);
+		color = std::vector<glm::vec4>(N);
 
 		for (int i = 0; i < N; i++) {
 
@@ -137,6 +142,9 @@ public:
 			float vx = glm::gaussRand(0.0f, 1.0f);
 			float vy = glm::gaussRand(0.0f, 1.0f);
 			velocity[i] = glm::normalize(glm::vec2(vx, vy));
+
+			// set inv_mass
+			inv_mass[i] = 1.0f; // identical particles
 
 			// set color of each sphere
 			color[i] = glm::linearRand(glm::vec4(0.0f), glm::vec4(1.0f));
@@ -151,6 +159,7 @@ public:
 
 		TwAddVarRW(bar, "updated", TwType::TW_TYPE_BOOLCPP, &updated, "label='updated' ");
 		TwAddVarRW(bar, "dt", TwType::TW_TYPE_FLOAT, &dt, "label='dt' min=1e-6 max=1e-2 step=1e-6");
+		TwAddVarRW(bar, "e" , TwType::TW_TYPE_FLOAT, &e , "label='e' min=0.0 max=1.0 step=1e-4");
 
 		TwAddVarCB(bar, "N_subdiv", TwType::TW_TYPE_INT32,
 			[](const void* value, void* obj) {
@@ -173,12 +182,14 @@ private:
 	bool updated = false;
 	float dt = 2e-4f;
 
+	float e = 1.0f; // coeffcient of restitution
 	float radius = 0.04f;
 
 	int N = 2;
 
 	std::vector<glm::vec2> position;
 	std::vector<glm::vec2> velocity;
+	std::vector<float> inv_mass;
 	std::vector<glm::vec4> color;
 };
 
