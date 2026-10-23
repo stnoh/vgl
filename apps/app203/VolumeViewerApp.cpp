@@ -9,6 +9,9 @@
 
 #include <tinyfiledialogs.h>
 
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include <stb_image_write.h>
+
 std::string shader_vs = R"(
 #version 330 core
 layout(location=0) in vec3 vPosition;
@@ -148,6 +151,11 @@ public:
 			VolumeViewerApp* _this = (VolumeViewerApp*)client;
 			_this->LoadRawFile();
 		}, this, " ");
+		TwAddButton(bar, "export_images", [](void* client) {
+			VolumeViewerApp* _this = (VolumeViewerApp*)client;
+			_this->SavePngFiles();
+		}, this, " ");
+
 		TwAddVarRW(bar, "iso_value", TwType::TW_TYPE_FLOAT, &iso_value, "step=0.001 min=0.0 max=1.0");
 
 #if 1
@@ -228,6 +236,34 @@ private:
 			GL_RED, GL_UNSIGNED_BYTE, &volume_data[0]);
 
 		glBindTexture(GL_TEXTURE_3D, 0);
+	}
+
+	void SavePngFiles()
+	{
+		if (!loaded) return;
+
+		char* dirpath = tinyfd_selectFolderDialog(
+			"Set directory where export as multiple PNG images", "./");
+
+		if (dirpath)
+		{
+			int image_size = volume_size.x * volume_size.y;
+
+			for (int k = 0; k < volume_size.z; k++) {
+				std::vector<unsigned char> data;
+				data.resize(image_size);
+				for (int j = 0; j < volume_size.y; j++)
+				for (int i = 0; i < volume_size.x; i++) {
+					int id = i + j * volume_size.x;
+					data[id] = volume_data[id + k * image_size];
+				}
+
+				// output as PNG image
+				char buf[128];
+				sprintf(buf, "%s/image%03d.png", dirpath, k);
+				stbi_write_png(buf, volume_size.x, volume_size.y, 1, data.data(), 0);
+			}
+		}
 	}
 
 	vgl::GLShader shader;
