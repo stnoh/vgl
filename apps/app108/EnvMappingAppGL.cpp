@@ -41,7 +41,9 @@ const char* vertShader_legacy = R"(
 uniform mat4 Projection;
 uniform mat4 ModelView;
 
+varying vec3 wPosition;
 varying vec3 wDirection;
+varying vec3 wCameraPos;
 
 void main()
 {
