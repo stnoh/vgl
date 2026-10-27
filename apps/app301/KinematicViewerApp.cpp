@@ -91,7 +91,7 @@ public:
 		bool updated = AppGLBase::Update();
 
 		////////////////////////////////////////
-		// left click: add control point
+		// Ctrl + Left click : set target point
 		////////////////////////////////////////
 		if (is_left_drag) {
 			if (!mouse_button[0]) is_left_drag = false;
