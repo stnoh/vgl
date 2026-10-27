@@ -54,14 +54,17 @@ void main()
 	
 	// Naive ray marching
 	float iso_prev = texture(volume_data, rayStart).r - iso_value;
+	float dt = t_max / float(MAX_STEP);
 
 	for (int i=1;i<MAX_STEP;i++) {
-		float t = float(i) / float(MAX_STEP) * t_max;
-		vec3 pos = rayStart + t * rayDir;
+		float it = float(i);
+		vec3 pos = rayStart + it * dt * rayDir;
 		float iso_this = texture(volume_data, pos).r - iso_value;
 		
 		// check intersection
 		if (iso_this * iso_prev <= 0.0f) {
+			it -= abs( iso_this / (iso_prev - iso_this) ); // move back to accurate intersected position
+			pos = rayStart + it * dt * rayDir;
 			FragColor = vec4(pos, 1.0);
 			return;
 		}

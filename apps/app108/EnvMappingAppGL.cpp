@@ -282,7 +282,7 @@ public:
 			for (int n = 0; n < files.size(); n++)
 			{
 				char buf[256];
-				sprintf_s(buf, "%s\\%s", dirpath, files[n].c_str());
+				sprintf(buf, "%s\\%s", dirpath, files[n].c_str());
 				printf("load file: %s\n", buf);
 
 				// load image and set texture

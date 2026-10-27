@@ -4,6 +4,7 @@ This is temporary code. I have a plan to re-write or dispose this code soon.
 Author: Seung-Tak Noh (seungtak.noh [at] gmail.com)
 ******************************************************************************/
 #include <vgl/rawFileIO.h>
+#include <string.h>
 #include <fstream>
 #include <sstream>
 
