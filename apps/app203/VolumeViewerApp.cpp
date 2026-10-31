@@ -12,7 +12,7 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb_image_write.h>
 
-std::string shader_vs = R"(
+const char* shader_vs = R"(
 #version 330 core
 layout(location=0) in vec3 vPosition;
 uniform mat4 Projection;
@@ -34,7 +34,7 @@ void main()
 	gl_Position = Projection * ModelView * vec4(vPosition, 1.0); // mandatory
 }
 )";
-std::string shader_fs = R"(
+const char* shader_fs = R"(
 #version 330 core
 uniform sampler3D volume_data;
 uniform float iso_value;
@@ -252,18 +252,18 @@ private:
 		{
 			int image_size = volume_size.x * volume_size.y;
 
-			for (int k = 0; k < volume_size.z; k++) {
+			for (size_t k = 0; k < volume_size.z; k++) {
 				std::vector<unsigned char> data;
 				data.resize(image_size);
-				for (int j = 0; j < volume_size.y; j++)
-				for (int i = 0; i < volume_size.x; i++) {
-					int id = i + j * volume_size.x;
+				for (size_t j = 0; j < volume_size.y; j++)
+				for (size_t i = 0; i < volume_size.x; i++) {
+					size_t id = i + j * volume_size.x;
 					data[id] = volume_data[id + k * image_size];
 				}
 
 				// output as PNG image
 				char buf[128];
-				sprintf(buf, "%s/image%03d.png", dirpath, k);
+				sprintf(buf, "%s/image%03d.png", dirpath, (int)k);
 				stbi_write_png(buf, volume_size.x, volume_size.y, 1, data.data(), 0);
 			}
 		}

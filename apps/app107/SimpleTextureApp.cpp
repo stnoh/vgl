@@ -221,8 +221,8 @@ public:
 		std::vector<glm::vec3> texture = std::vector<glm::vec3>(TEX_WIDTH * TEX_WIDTH);
 
 		plane_xy = vgl::PlaneXY(TEX_WIDTH, 2.0f);
-		for (int j = 0; j < TEX_WIDTH; j++)
-		for (int i = 0; i < TEX_WIDTH; i++){
+		for (size_t j = 0; j < TEX_WIDTH; j++)
+		for (size_t i = 0; i < TEX_WIDTH; i++){
 			glm::vec3& v = plane_xy.vertices[i + j * TEX_WIDTH];
 			glm::vec3& n = plane_xy.normals [i + j * TEX_WIDTH];
 
@@ -250,7 +250,7 @@ public:
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		float borderColor[] = { 0.0, 0.0, 1.0, 1.0 };
 		glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 128, 128, 0, GL_RGB, GL_FLOAT, &texture[0]);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 128, 128, 0, GL_RGB, GL_FLOAT, texture.data());
 
 		return true;
 	}

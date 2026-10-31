@@ -89,7 +89,7 @@ public:
 			};
 
 			// make new vertices between each edge
-			for (int fidx = 0; fidx < faces_subdiv.size() / 3; fidx++)
+			for (size_t fidx = 0; fidx < faces_subdiv.size() / 3; fidx++)
 			{
 				int vidx0 = faces_subdiv[3 * fidx + 0];
 				int vidx1 = faces_subdiv[3 * fidx + 1];
@@ -162,7 +162,7 @@ public:
 				faces_subdiv_new.push_back(vidx2);
 			};
 
-			for (int f = 0; f < faces_subdiv.size(); f += 3)
+			for (size_t f = 0; f < faces_subdiv.size(); f += 3)
 			{
 				int vidx0 = faces_subdiv[f + 0];
 				int vidx1 = faces_subdiv[f + 1];

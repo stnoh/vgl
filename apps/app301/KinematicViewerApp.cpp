@@ -75,7 +75,7 @@ public:
 	void ComputeIK(glm::vec3 target_pos)
 	{
 		int N = joints.size();
-		for (int i = N - 1; i > 0; i--)
+		for (size_t i = N; i > 0; i--)
 		{
 			std::vector<glm::vec3> updated = GetPositions();
 			
@@ -179,7 +179,7 @@ public:
 			std::string def1 = "group='Joint' label='Angle"  + std::to_string(i) + "' ";
 
 			TwAddVarRW(bar, name0.c_str(), TwType::TW_TYPE_FLOAT, &joint.length, def0.c_str());
-			TwAddVarRW(bar, name1.c_str(), TwType::TW_TYPE_FLOAT, &joint.angle, def1.c_str());
+			TwAddVarRW(bar, name1.c_str(), TwType::TW_TYPE_FLOAT, &joint.angle , def1.c_str());
 		}
 #endif
 		return true;

@@ -140,7 +140,7 @@ public:
 
 		glm::mat4 proj = glm::infinitePerspective(glm::radians(53.1301f), width / (float)height, 0.1f);
 		glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -5.0f));
-		view = view * glm::mat4_cast(GlobalViewRotation);
+		view = view * glm::mat4_cast(glm::inverse(GlobalViewRotation));
 
 		glMatrixMode(GL_PROJECTION); glLoadMatrixf(glm::value_ptr(proj));
 		glMatrixMode(GL_MODELVIEW);  glLoadMatrixf(glm::value_ptr(view));
@@ -218,10 +218,10 @@ public:
 			const int block_sz = 32;
 			const int W = 256;
 			const int H = 256;
-			GLubyte* data = (GLubyte*)malloc(W * H * 3 * sizeof(GLubyte));
+			std::vector<GLubyte> tex2D(W * H * 3);
 
-			for (int j = 0; j < H; j++)
-			for (int i = 0; i < W; i++)
+			for (size_t j = 0; j < H; j++)
+			for (size_t i = 0; i < W; i++)
 			{
 				int bx = i / block_sz;
 				int by = j / block_sz;
@@ -242,20 +242,16 @@ public:
 				if (0 == (bx + by) % 2) R = G = B = 64;
 
 				// fill the pixel values
-				int pidx = i + j * W;
-				data[3 * pidx + 0] = R;
-				data[3 * pidx + 1] = G;
-				data[3 * pidx + 2] = B;
+				size_t pidx = i + j * W;
+				tex2D[3 * pidx + 0] = R;
+				tex2D[3 * pidx + 1] = G;
+				tex2D[3 * pidx + 2] = B;
 			}
 
 			// set texture for the face
 			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + n, 0, GL_RGB,
-				W, H, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-			//stbi_write_jpg(files[n].c_str(), W, H, 3, data, 100); // [TEMPORARY] output rendered image if needed
-
-			// release image data
-			free(data);
-			data = NULL;
+				W, H, 0, GL_RGB, GL_UNSIGNED_BYTE, tex2D.data());
+			//stbi_write_jpg(files[n].c_str(), W, H, 3, tex2D.data(), 100); // [TEMPORARY] output rendered image if needed
 		}
 
 		// set texture parameters
@@ -325,6 +321,8 @@ public:
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 			glBindTexture(GL_TEXTURE_2D, 0);
 
+			stbi_image_free(data);
+
 			// resize cubemap in advance
 			int W = 512;
 			int H = 512;
@@ -392,7 +390,6 @@ public:
 			}
 
 			// release texture and image
-			stbi_image_free(data);
 			glBindTexture(GL_TEXTURE_2D, 0);
 			glDeleteTextures(1, &equirect);
 			glDisable(GL_TEXTURE_2D);

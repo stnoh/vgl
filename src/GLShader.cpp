@@ -44,7 +44,7 @@ void GLShader::Clear()
 	}
 	program = 0;
 }
-void GLShader::Compile(const std::string& shaderCode, SHADER_TYPE type)
+void GLShader::Compile(const std::string& shaderCode, enum SHADER_TYPE type)
 {
 	GLuint shader_type;
 	GLuint* hShader;
