@@ -136,7 +136,7 @@ public:
 		for (int i = 0; i < N; i++) {
 
 			// set initial position inside of the boundary
-			position[i] = glm::linearRand(glm::vec3(0.0 + 2.0f * radius), glm::vec3(1.0 - 2.0f * radius));
+			position[i] = glm::linearRand(glm::vec3(0.0f + 2.0f * radius), glm::vec3(1.0f - 2.0f * radius));
 				
 			// set initial speed
 			float vx = glm::gaussRand(0.0f, 1.0f);
