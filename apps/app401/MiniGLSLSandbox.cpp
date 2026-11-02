@@ -10,7 +10,7 @@
 #include <sstream>
 #include <tinyfiledialogs.h>
 
-std::string shader_vs = R"(
+const char* shader_vs = R"(
 #version 330 core
 layout(location=0) in vec2 vert;
 layout(location=1) in vec2 surfacePosAttrib;
@@ -24,7 +24,7 @@ void main()
 	gl_Position = mvp * vec4(vert, 0.0f, 1.0f);
 }
 )";
-std::string shader_fs = R"(
+const char* shader_fs = R"(
 #version 330 core
 
 uniform float time;

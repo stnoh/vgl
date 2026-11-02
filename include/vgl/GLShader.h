@@ -12,7 +12,7 @@ Author: Seung-Tak Noh (seungtak.noh [at] gmail.com)
 
 namespace vgl {
 
-enum SHADER_TYPE { VERTEX=0, FRAGMENT, GEOMETRY, TESSELATION };
+enum class SHADER_TYPE { VERTEX=0, FRAGMENT, GEOMETRY, TESSELATION };
 
 class GLShader
 {
@@ -21,7 +21,7 @@ public:
 	~GLShader();
 
 	void Clear();
-	void Compile(const std::string& shaderCode, enum SHADER_TYPE type);
+	void Compile(const std::string& shaderCode, SHADER_TYPE type);
 	bool Link();
 
 	void Enable()  { glUseProgram(program); }
