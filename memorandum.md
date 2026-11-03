@@ -2,15 +2,11 @@
 
 ## 古い Visual Studio Community の入手について  
 
-最新バージョンは，次のサイトで入手可能である: [https://visualstudio.microsoft.com/vs/community/](https://visualstudio.microsoft.com/vs/community/)  
+最新バージョン(VS 2026)は，次のサイトで入手可能である: [https://visualstudio.microsoft.com/vs/community/](https://visualstudio.microsoft.com/vs/community/)  
 
-年々，最新バージョンに合わせてアップデートをしているものの，本レポジトリは最初は Visual Studio 2019 を想定して作られたものであり，  
-最新の Visual Studio のサポートはあまり考慮していなかった．なので，過去のバージョンに戻す可能性も考慮している．  
-その際に問題なのは，恐らく過去バージョンの Visual Studio の入手であろう．  
+年々，最新バージョンに合わせてアップデートをしているものの，本レポジトリは最初は Visual Studio 2019 を想定して作られたものであり，最新の Visual Studio のサポートはあまり考慮していなかった．なので，過去のバージョンに戻す可能性も考慮している．その際に問題なのは，恐らく過去バージョンの Visual Studio の入手であろう．  
 
-Visual Studio Community は最新バージョンが正式にリリースされると，既存バージョンへの公式的なリンクは消すようになっている．  
-しかし，何時途切れるか分からないものの，しばらくの間はインストールを防がず，辿っていけばインストール自体は可能になる．  
-以下はそのようなインストーラへのリンクである:  
+Visual Studio Community は最新バージョンが正式にリリースされると，既存バージョンへの公式的なリンクは消すようになっている．しかし，何時途切れるか分からないものの，しばらくの間はインストールを防がず，辿っていけばインストール自体は可能になる．以下はそのようなインストーラへのリンクである:  
 
 - Visual Studio 2022 [https://aka.ms/vs/17/release/vs_community.exe](https://aka.ms/vs/17/release/vs_community.exe)  
 - Visual Studio 2019 [https://aka.ms/vs/16/release/vs_community.exe](https://aka.ms/vs/16/release/vs_community.exe)  
@@ -62,16 +58,15 @@ Visual Studio Community は最新バージョンが正式にリリースされ�
     > make -j -l4
     ```  
 
-### 他のLinuxについて
+### 他のLinuxへの対応について
 
-- Ubuntu 以外の Linux でも，一定水準以上の使用される distro 版で問題が発生したら，なるべく支援したい．  
-  + 特に[Steam OS](https://en.wikipedia.org/wiki/SteamOS)は今後 Linux の標準な distro になると思われるので注目しているところである．  
-- Custom build なものは支援はしない予定．それくらいができる実力なら，ライブラリのビルドも自前で解決できるはずです．  
+非常に多くの distro があるため，全部を支援するのは難しい．せいぜい一定水準以上のシェアのものに限る．  
+更に，Custom build なものまで考えるとどうしようもない．Ubuntu のやり方から類推してほしい．  
 
 ### [注意] Mac系
 
 私がMac系のPCを手に入れない限り(現在の想定では一生ない気がしますが)試すことすらできません．  
-すみませんが自力でなんとか解決して下さい．Mac遣いならばそれくらいは自力で解決するのが想定されることです．  
+すみませんが自力でなんとか解決して下さい．Mac遣いならばそれくらいは自力で解決するのが望ましいです．  
 
 
 ## ライブラリ
@@ -84,32 +79,46 @@ Visual Studio Community は最新バージョンが正式にリリースされ�
 - [glew-cmake](https://github.com/Perlmint/glew-cmake)-2.2.0: GLEW の cmake 対応版．  
 - [glfw](https://github.com/glfw/glfw)-3.3.10: GLコンテキストの使用可能な基本ウィンドウライブラリ．  
 - [anttweakbar](https://github.com/stnoh/AntTweakBar): OpenGL screen上に備えられる簡単なGUIライブラリ．  
-  + 本来 [tschw氏のレポジトリ](https://github.com/tschw/AntTweakBar)であったが，もはや Visual Studio 2019 がダウンロードできなくなり，Visual Studio 2022 にも対応できるように小さい変更を加えたものである．  
+  + 本来 [tschw氏のレポジトリ](https://github.com/tschw/AntTweakBar)であったが，Visual Studio 2022 以後も対応できるように小さい変更を加えたものである．  
   + このライブラリだけビルドが非常に遅いため大体も検討している．しかし，trackball の実装を含んでいる GUI はなかなか見つからないため維持している．  
 
 後，GLFWとは無関係なGUIダイアログや，ファイル入出力などC++14には足りない一般機能を含んでいる．  
 
 - [tinyfiledialog](https://sourceforge.net/projects/tinyfiledialogs/): 環境依存しない File Dialog 用のGUIツール．  
-  + このライブラリは現在git submoduleの形で入手が困難なため，直接ファイルを取り入れている(zlib/libpng license)．  
+  + git submoduleの形で入手が困難なため，直接ファイルを取り入れている(zlib/libpng license)．  
 - [stb](https://github.com/nothings/stb): 環境依存しない画像読込み・書き込みライブラリ．  
-  + 近年セキュリティ問題が報告されているものの，C言語特有の仕様が原因であり，教育用途の単純利用では問題ないと判断されるため使用．  
+  + 生のポインタを使う特性上，[近年セキュリティ問題が報告されている](https://github.com/nothings/stb?tab=security-ov-file)ものの，  
+  教育用途の単純利用では問題ないと判断されるため使用．  
   + 現在は stb_image.h, stb_image_resize2.h, stb_write.h のみ含んでいる．  
 
 
-### 使用中止となったライブラリ
+### 候補ライブラリ
 
-- [dirent](https://github.com/tronkko/dirent): POSIX 互換ファイル/ディレクトリ参照ライブラリ．~~*NIX 系では基本的に入っているものの，Win32系にはないので追加．~~  
-  + 実際のところ必要がなかったため，除外している．  
-    初期の想定としては，実行ファイルのパスでの特定が必要なC/C++の特性上，シェーダを異なるファイルから読めるような対策として入れた．  
-  + しかし，授業事例でのシェーダーは全部コード内部にリテラルとして含めたため，パス問題も不要になった．  
-  + 仮に必要としてもC++17の`filesystem`で解決可能に思われる．  
+検討ライブラリ中，優先順位の高いライブラリだけ取り出したもの．  
 
+#### [ImGui](https://github.com/ocornut/imgui)
+
+Type: AntTweakBarの代わりとして考慮．  
+
+- [✔] GL GUI系のデファクトライブラリ  
+- [△] 導入の邪魔になる事項  
+  + CMake build をもう少し整理する  
+  + 回転の trackball 実装が含まれていない  
+
+
+#### [Eigen](https://gitlab.com/libeigen/libeigen.gitlab.io) 
+
+Type: 線形代数ライブラリ．  
+
+- [✔] C++で線形代数を扱う最も上等なライブラリ  
+- まだ事例として線形代数処理が含まれていないため，導入の必要性もなさそう．  
+  + 候補は物理シミュレーション: softbody (未実装のapp303) や stable fluids (app304)  
+  + もしくは，導入検討中の ARAP などの形状変形手法や，mesh parametrization 系の手法  
 
 
 ### 追加検討中のライブラリ
 
-恐らく必要に応じて追加の必要なライブラリである．
-
+必要に応じて追加や変更を検討しているライブラリの目録である．  
 
 #### [RGFW](https://github.com/ColleagueRiley/RGFW)
 
@@ -136,14 +145,6 @@ Type: AntTweakBarの代わりとして使えるかも知れない．
 - [△] 情報がちょっと足りない  
 
 
-#### [libgd](https://github.com/libgd/libgd)
-
-Type: image loader
-
-- [✔] Security-safe image loading library  
-- [△] 画像ライブラリにしてはちょっと大き目 (30MB)  
-
-
 #### [tinyply](https://github.com/ddiakopoulos/tinyply)
 
 Type: ply mesh importer  
@@ -152,9 +153,28 @@ Type: ply mesh importer
 - [△] 何れメッシュデータに直す部分はコード作成が必要．  
 
 
+### 使用/検討中止となったライブラリ
+
+以後検討しなくてもよさそうなライブラリの目録．  
+
+#### [dirent](https://github.com/tronkko/dirent)
+
+Win32 用 POSIX 互換ファイル/ディレクトリ参照ライブラリ．  
+シェーダをファイルで読み込もうとした初期の想定では必要であったが，  
+しかし，アプリ事例にシェーダーをリテラルとして含む政策を取ることでパス解決も不要になった．  
+以後，必要だとしても C++17 の`filesystem`で解決可能に思われる．  
+
+#### [libgd](https://github.com/libgd/libgd)
+
+現在，stbを部分的に取り入れているため，追加検討しないこととなった．  
+
+- [✔] Security-safe image loading library  
+- [✘] 画像ライブラリにしては大き目 (30MB)  
+
 #### [assimp](https://github.com/assimp/assimp)
 
-Type: 3D asset (mesh) importer
+現在，メッシュ関連は簡単なものを自作コードで取り入れており，追加検討しないこととなった．  
 
-- [✔] 多様なメッシュ形式に対応可能なインポーター．  
-- [△] 重すぎる．授業程度でメッシュ形式を扱っても仕方ないので扱わなくてもよさそうな．  
+- [✔] [30種ほどのアセット形式](https://github.com/assimp/assimp/blob/master/doc/Fileformats.md)に対応可能なライブラリ．  
+- [✘] 重すぎる (レポジトリが 511MB!)．授業プラットフォームとして不適切．  
+  + Prebuiltは比較的小さい ([インストーラ](https://kimkulling.itch.io/the-asset-importer-lib)が24MB)が，cross-platformが守れなくなる．  

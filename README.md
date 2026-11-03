@@ -18,7 +18,7 @@ C++によるOpenGLの簡単な実装を可能とするための項目を含め�
 2. 次に，git を利用して clone を行う．  
     `> git clone https://github.com/stnoh/vgl .`  
 
-3. git submodule のアップデートを行う．submodule内部のも全部アップデートするために，以下の命令を実行する．  
+3. git submodule のアップデートを行う．submodule内部のも全部アップデートするために，以下を実行する．  
     `> git submodule update --init --recursive`  
     **[CAUTION]** この過程をダウンロードで行うには，個別のレポジトリを全部ダウンロードして解凍して置く必要があり，非常に面倒である！
 
@@ -33,7 +33,7 @@ Visual Studio/C++ のビルドソリューションを作りたいものは，CM
 2. "Open a local folder"を選択し，このレポジトリをクローンしたフォルダを選択して開く．  
 3. ninja build が自動的に CMakeLists.txt を開いてビルドの構成をしてくれる．  
 
-因みに，Ubuntu 22.04 でのビルド成功も確認したが，今後もしばらくの開発は Windows + VS2022 で行う予定であり，  
+因みに，Ubuntu でのビルド成功も確認したが，今後もしばらくの開発は Windows + VS2022 で行う予定であり，  
 Ubuntu や WSL でのビルド可能性は保証されない．  
 
 
@@ -42,7 +42,7 @@ Ubuntu や WSL でのビルド可能性は保証されない．
 ### Basic rendering (rasterization に基づく描画)
 
 - app101: TestAppGL, GLFWによる簡単な Windows 立ち上げテストプログラム．  
-- app102: CameraFrustumViewerApp, カメラ視野や姿勢などとレンダリングされた結果との対応がみれるプログラム．  
+- app102: CameraFrustumViewerApp, カメラ視野や姿勢とレンダリング結果との対応がみれるプログラム．  
 - app103: SimpleDrawApp, 非常に簡単な三角形を描くプログラム．  
 - app104: DepthTestApp, 隠面消去に関わる例題プログラム．  
 - app105: SimpleShaderApp, Gouraud shader の例題プログラム．  
@@ -54,7 +54,7 @@ Ubuntu や WSL でのビルド可能性は保証されない．
 
 - app201: CurveDrawingApp, ちょっとした修正で曲線描画が可能なプログラム．  
 - app202: TriMeshViewerApp, ちょっとした修正で細分割の適用可能なプログラム．  
-- app203: **[TODO]** ~~簡単なボリュームレンダラのプログラム~~  
+- app203: VolumeRendererApp, 簡単な Ray Marching のプログラム．  
 
 ### Basic animation (アニメーションの原理)  
 
@@ -66,13 +66,14 @@ Ubuntu や WSL でのビルド可能性は保証されない．
 ### Advanced rendering (ray-tracing に基づく描画)
 
 - app401: mrdoob氏の [glsl-sandbox](https://github.com/mrdoob/glsl-sandbox) の機能を真似したローカル簡略版．  
+- app402: [Nishitaらの1993年SIGGRAPH論文](https://dl.acm.org/doi/10.1145/166117.166140)に基づいた空のレンダリング．  
 
 
 ## 注意及び補足
 
 ### Visual Studio 2026  
 
-コンパイルできることは確認している．しかし，インストール容量が大きく，メリットが少ないと判断し推奨しない．  
+コンパイルできることは確認している．しかし，インストール容量が大きく，メリットが少ないと判断したため，本格的な作業プラットフォームとしては用いていない．  
 
 ### C++コードの書き方
 
@@ -82,6 +83,6 @@ Ubuntu や WSL でのビルド可能性は保証されない．
 
 - コンテナは可能な限り[STL](https://en.cppreference.com/w/cpp/standard_library.html)を利用し，ポインタによる配列はなるべく使わない．  
   `std::vector<T>`, `std::set<T>`, `std::map<T>` など，C++で実装された標準的なコンテナを多数利用している．  
-  - しかし，GL系のライブラリは規格が古くSTLや[RAII](https://en.cppreference.com/w/cpp/language/raii.html)の適用が困難なもので，そこは古いやり方に則ってやっている．  
+  - しかし，GL系のライブラリは規格が古くSTLや[RAII](https://en.cppreference.com/w/cpp/language/raii.html)の適用が困難であり，古いやり方に則ってやっている．  
 - Modern C++ 的な書き方はあまり多く導入しない．  
   - **例外**: [lambda](https://en.cppreference.com/w/cpp/language/lambda.html)は柔軟性と利便性で，頻繁に使っている．  
